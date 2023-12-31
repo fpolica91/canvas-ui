@@ -1,17 +1,22 @@
 import { SideBarDrawer } from "./components/Drawer";
 import Flow from "./components/Flow";
 import { ChakraProvider, Box } from "@chakra-ui/react";
-import AceEditor from "react-ace";
-import "ace-builds/src-noconflict/mode-terraform";
-import "ace-builds/src-noconflict/theme-monokai";
+import { Editors } from "./components/Editors";
+import { useEffect } from "react";
 import { State } from "./types/store";
 import useStore from "./context/Canvas";
 
 const selector = (state: State) => ({
-  terraformConfig: state.terraformString,
+  setInitialTerraformState: state.setInitialTerraformState,
 });
+
 function App() {
-  const { terraformConfig } = useStore(selector);
+  const { setInitialTerraformState } = useStore(selector);
+
+  useEffect(() => {
+    setInitialTerraformState();
+  }, []);
+
   return (
     <ChakraProvider>
       <Box className="App" height="100vh" position="relative">
@@ -20,15 +25,7 @@ function App() {
         </Box>
         <Flow />
         <Box position="absolute" top={0} right={0} width="33%" height="100%">
-          <AceEditor
-            mode="terraform"
-            theme="monokai"
-            name="ace-editor"
-            readOnly={true}
-            width="100%"
-            height="100%"
-            value={terraformConfig}
-          />
+          <Editors />
         </Box>
       </Box>
     </ChakraProvider>

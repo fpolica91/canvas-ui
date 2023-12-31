@@ -9,20 +9,22 @@ import {
   OnConnect,
   NodeProps,
 } from "reactflow";
+import { BucketsType } from "./aws/storage/bucket";
+import { ServicesType } from "./services/CloudServices";
+import { TerraformSchemaType } from "./terraform/schema";
 
 export const Provider = z.enum(["aws", "azure", "gcp"]);
-export type ProviderType = z.infer<typeof Provider>;
 
-export const Services = z.object({
-  compute: z.array(
-    z.object({ name: z.string(), icon: z.string(), type: z.string() })
-  ),
-  storage: z.array(
-    z.object({ name: z.string(), icon: z.string(), type: z.string() })
-  ),
+export const providerConfig = z.object({
+  provider: z.string(),
+  provider_source: z.string(),
+  provider_version: z.string(),
+  region: z.string().optional(),
 });
 
-export type ServicesType = z.infer<typeof Services>;
+export type ProviderConfigType = z.infer<typeof providerConfig>;
+
+export type ProviderType = z.infer<typeof Provider>;
 
 export type State = {
   nodes: Node[];
@@ -32,9 +34,12 @@ export type State = {
   onConnect: OnConnect;
   position: { x: number; y: number };
   nodeTypes: { [key: string]: ComponentType<NodeProps> };
-  createNode(type: string, label: string): void;
+  createNode(type: string, label: string, nodeData: BucketsType): void;
   provider: ProviderType;
   services: ServicesType;
   onProviderChange: (provider: ProviderType) => void;
   terraformString: string;
+  terraform: TerraformSchemaType;
+  providerConfig: ProviderConfigType;
+  setInitialTerraformState: () => Promise<void>;
 };

@@ -9,9 +9,9 @@ import {
   OnConnect,
   NodeProps,
 } from "reactflow";
-import { BucketsType } from "./aws/storage/bucket";
-import { ServicesType } from "./services/CloudServices";
-import { TerraformSchemaType } from "./terraform/schema";
+import { BucketType } from "../../constants/aws/types/storage/bucket";
+import { ServicesType } from "../../types/services/CloudServices";
+import { TerraformSchemaType } from "../../types/terraform/schema";
 
 export const Provider = z.enum(["aws", "azure", "gcp"]);
 
@@ -22,11 +22,19 @@ export const providerConfig = z.object({
   region: z.string().optional(),
 });
 
-export type ProviderConfigType = z.infer<typeof providerConfig>;
+export const createNodeSchema = z.object({
+  name: z.string(),
+  icon: z.string(),
+  type: z.string(),
+  tag: z.string(),
+  provider: z.string(),
+});
 
+export type ProviderConfigType = z.infer<typeof providerConfig>;
+export type CreateNodeType = z.infer<typeof createNodeSchema>;
 export type ProviderType = z.infer<typeof Provider>;
 
-export type State = {
+export type InfraCanvaState = {
   nodes: Node[];
   edges: Edge[];
   onNodesChange: OnNodesChange;
@@ -34,12 +42,14 @@ export type State = {
   onConnect: OnConnect;
   position: { x: number; y: number };
   nodeTypes: { [key: string]: ComponentType<NodeProps> };
-  createNode(type: string, label: string, nodeData: BucketsType): void;
-  provider: ProviderType;
+  createNode(services: CreateNodeType, nodeData: BucketType): void;
+  provider: string;
+  createDefaultStorageNode: (type: string) => Promise<void>;
   services: ServicesType;
   onProviderChange: (provider: ProviderType) => void;
   terraformString: string;
   terraform: TerraformSchemaType;
   providerConfig: ProviderConfigType;
   setInitialTerraformState: () => Promise<void>;
+  handleAmazonServiceCreate: (service: CreateNodeType) => Promise<void>;
 };

@@ -13,11 +13,13 @@ import {
   SimpleGrid,
   Select,
 } from "@chakra-ui/react";
-import { ProviderType, State } from "../types/store";
-import useStore from "../context/Canvas";
-import { BucketsSchema } from "../types/aws/storage/bucket";
+import { CreateNodeType, ProviderType } from "../context/store/types";
+import useStore from "../context/canvas";
+import { bucketSchema } from "../constants/aws/types/storage/bucket";
+import { generateName } from "../utils/nameGenerator";
+import { InfraCanvaState } from "../context/store/types";
 
-const selector = (state: State) => ({
+const selector = (state: InfraCanvaState) => ({
   createNode: state.createNode,
   handleProviderChange: state.onProviderChange,
   services: state.services,
@@ -28,10 +30,16 @@ export function SideBarDrawer() {
   const { createNode, services, handleProviderChange, provider } =
     useStore(selector);
 
-  function handleCreateNode(type: string, name: string) {
-    const bucket = {
+  function handleCreateNode(service: {
+    name: string;
+    icon: string;
+    type: string;
+    tag: string;
+    provider: string;
+  }) {
+    const node = {
       configuration: {
-        bucket: "mybucktsito",
+        bucket: generateName(),
         tags: [
           { key: "Environment", value: "Dev" },
           { key: "Project", value: "ProjectX" },
@@ -39,26 +47,17 @@ export function SideBarDrawer() {
       },
     };
 
-    const data = {
-      type: "buckets",
-      buckets: [bucket],
-    };
-
-    const validatedData = BucketsSchema.safeParse(data);
+    const validatedData = bucketSchema.safeParse(node);
     if (!validatedData.success) {
       console.log(validatedData.error, "error parsing data");
       return;
     }
-    createNode(type, name, validatedData.data);
+    createNode(service, validatedData.data);
   }
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
-  const ServiceButton = ({
-    service,
-  }: {
-    service: { name: string; icon: string; type: string };
-  }) => (
+  const ServiceButton = ({ service }: { service: CreateNodeType }) => (
     <Button
       w="100%"
       h="auto"
@@ -66,7 +65,7 @@ export function SideBarDrawer() {
       borderWidth="1px"
       borderRadius="md"
       variant="outline"
-      onClick={() => handleCreateNode(service.type, service.name)}
+      onClick={() => handleCreateNode(service)}
     >
       <VStack>
         <Image src={service.icon} boxSize="50px" alt={service.name} />
@@ -79,7 +78,7 @@ export function SideBarDrawer() {
     items,
   }: {
     title: string;
-    items: { name: string; icon: string; type: string }[];
+    items: CreateNodeType[];
   }) => (
     <Box my={4}>
       <Text fontSize="xl" fontWeight="bold" mb={4}>

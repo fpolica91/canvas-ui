@@ -2,14 +2,15 @@ import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 import AceEditor from "react-ace";
 import "ace-builds/src-noconflict/mode-terraform";
 import "ace-builds/src-noconflict/theme-dracula";
-import useStore from "../context/Canvas";
-import { State } from "../types/store";
+import useStore from "../context/canvas";
+import { InfraCanvaState } from "../context/store/types";
+
 import {
   TerraformSchemaType,
   getEditorString,
 } from "../types/terraform/schema";
 
-const selector = (state: State) => ({
+const selector = (state: InfraCanvaState) => ({
   terraformConfig: state.terraformString,
   terraform: state.terraform,
 });
@@ -46,7 +47,7 @@ function Editor({
   const terraformString = getEditorString(name, terraform);
 
   return (
-    <TabPanel>
+    <TabPanel key={name}>
       <AceEditor
         mode="terraform"
         theme="dracula"

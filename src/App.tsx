@@ -3,15 +3,11 @@ import Flow from "./components/Flow";
 import { ChakraProvider, Box } from "@chakra-ui/react";
 import { Editors } from "./components/Editors";
 import { useEffect } from "react";
-import { State } from "./types/store";
-import useStore from "./context/Canvas";
 
-const selector = (state: State) => ({
-  setInitialTerraformState: state.setInitialTerraformState,
-});
+import useStore from "./context/canvas";
 
 function App() {
-  const { setInitialTerraformState } = useStore(selector);
+  const setInitialTerraformState = useStore.use.setInitialTerraformState();
 
   useEffect(() => {
     setInitialTerraformState();

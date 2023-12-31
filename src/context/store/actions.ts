@@ -1,48 +1,25 @@
-import { create } from "zustand";
-import { v4 as uuidv4 } from "uuid";
 import {
-  Connection,
-  EdgeChange,
   NodeChange,
-  addEdge,
   applyNodeChanges,
+  EdgeChange,
   applyEdgeChanges,
+  Connection,
+  addEdge,
 } from "reactflow";
-import { ProviderType, State } from "../types/store";
-import { S3StorageNode } from "../components/nodes/aws/storage/S3";
-import { StorageGateway } from "../components/nodes/aws/storage/StorageGateway";
-import { BucketsType } from "../types/aws/storage/bucket";
-import { initialAwsServices } from "../constants/aws/storage";
-import { initialAzureServices } from "../constants/azure/storage";
+import { v4 as uuidv4 } from "uuid";
+import { getBuckets } from "../../client/aws/storage/s3bucket";
+import { getProvider } from "../../client/methods";
+import { initialAwsServices } from "../../constants/aws/storage";
+import { initialAzureServices } from "../../constants/azure/storage";
+import { BucketType } from "../../constants/aws/types/storage/bucket";
+import { CreateNodeType, ProviderType } from "../store/types";
+import { StoreApi } from "zustand";
+import { InfraCanvaState } from "./types";
 
-import { getProvider } from "../client/methods";
-import { getBuckets } from "../client/aws/storage/s3bucket";
-
-// this is our useStore hook that we can use in our components to get parts of the store and call actions
-const useStore = create<State>((set, get) => ({
-  nodes: [],
-  edges: [],
-  provider: "aws",
-  services: initialAwsServices,
-  terraform: {
-    providerString: "",
-    resourceString: "",
-    variableString: "",
-  },
-  terraformString: "",
-  providerConfig: {
-    provider: "aws",
-    provider_source: "hashicorp/aws",
-    provider_version: "5.31.0",
-    region: "us-east-1",
-  },
-  nodeTypes: {
-    s3: S3StorageNode,
-    storage_gateway: StorageGateway,
-  },
-
-  position: { x: 0, y: 0 },
-
+export const actions = (
+  get: StoreApi<InfraCanvaState>["getState"],
+  set: StoreApi<InfraCanvaState>["setState"]
+) => ({
   onNodesChange: (changes: NodeChange[]) => {
     set({
       nodes: applyNodeChanges(changes, get().nodes),
@@ -51,6 +28,7 @@ const useStore = create<State>((set, get) => ({
 
   setInitialTerraformState: async () => {
     const data = await getProvider(get().providerConfig);
+
     set({
       terraform: {
         ...get().terraform,
@@ -120,14 +98,29 @@ const useStore = create<State>((set, get) => ({
       edges: addEdge(connection, get().edges),
     });
   },
+  handleAmazonServiceCreate: async (service: CreateNodeType) => {
+    switch (service.tag) {
+      case "storage": {
+        await get().createDefaultStorageNode(service.type);
+        break;
+      }
+    }
+  },
+  createDefaultStorageNode: async (type: string) => {
+    const nodes = get().nodes.map((node) => node.data.nodeData);
+    const payload = {
+      buckets: nodes,
+    };
+    let response = null;
+    switch (type) {
+      case "s3": {
+        response = await getBuckets(payload);
+        break;
+      }
+    }
 
-  createNode: async (type: string, label: string, nodeData: BucketsType) => {
-    const id = uuidv4();
-    const position = get().position;
-    const data = { label, ...nodeData };
-    set({ nodes: [...get().nodes, { id, type, data, position }] });
-    set({ position: { x: position.x + 50, y: position.y + 50 } });
-    const response = await getBuckets(nodeData);
+    if (!response) return;
+
     set({
       terraform: {
         ...get().terraform,
@@ -135,6 +128,15 @@ const useStore = create<State>((set, get) => ({
       },
     });
   },
-}));
 
-export default useStore;
+  createNode: async (service: CreateNodeType, nodeData: BucketType) => {
+    const id = uuidv4();
+    const position = get().position;
+    const data = { label: service.name, nodeData: nodeData };
+    set({
+      nodes: [...get().nodes, { id, type: service.type, data, position }],
+    });
+    set({ position: { x: position.x + 50, y: position.y + 50 } });
+    await get().handleAmazonServiceCreate(service);
+  },
+});

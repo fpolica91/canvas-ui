@@ -23,6 +23,7 @@
     "react-touch": "^0.4.4",
     "react-use": "^17.4.2",
     "reactflow": "^11.10.1",
+    "unique-names-generator": "^4.7.1",
     "uuid": "^9.0.1",
     "zod": "^3.22.4",
     "zustand": "^4.4.7"

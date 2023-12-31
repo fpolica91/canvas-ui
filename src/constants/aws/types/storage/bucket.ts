@@ -49,8 +49,8 @@ export const bucketSchema = z.object({
 });
 
 export const BucketsSchema = z.object({
-  type: z.literal("buckets"),
   buckets: z.array(bucketSchema),
 });
 
+export type BucketType = z.infer<typeof bucketSchema>;
 export type BucketsType = z.infer<typeof BucketsSchema>;

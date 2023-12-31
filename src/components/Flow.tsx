@@ -1,11 +1,10 @@
-// import { shallow } from "zustand/shallow";
-import { State } from "../types/store";
 import ReactFlow, { Background, Controls } from "reactflow";
 
 import "reactflow/dist/style.css";
-import useStore from "../context/Canvas";
+import useStore from "../context/canvas";
+import { InfraCanvaState } from "../context/store/types";
 
-const selector = (state: State) => ({
+const selector = (state: InfraCanvaState) => ({
   nodes: state.nodes,
   edges: state.edges,
   onNodesChange: state.onNodesChange,

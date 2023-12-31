@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { axiosInstance } from "../../axios";
-import { BucketsType } from "../../../types/aws/storage/bucket";
 
 export const responseSchema = z.object({
   data: z.object({
@@ -8,7 +7,7 @@ export const responseSchema = z.object({
   }),
 });
 
-export async function getBuckets(nodeData: BucketsType) {
+export async function getBuckets(nodeData: unknown) {
   const response = await axiosInstance.post(
     "/createbuckets",
     JSON.stringify(nodeData),

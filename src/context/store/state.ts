@@ -1,3 +1,4 @@
+import { EC2Node } from "../../components/nodes/aws/compute/ec2";
 import { LambdaNode } from "../../components/nodes/aws/compute/lambda";
 import { S3StorageNode } from "../../components/nodes/aws/storage/S3";
 import { StorageGateway } from "../../components/nodes/aws/storage/StorageGateway";
@@ -24,6 +25,7 @@ export const initialState = {
     s3: S3StorageNode,
     storage_gateway: StorageGateway,
     lambda: LambdaNode,
+    ec2: EC2Node,
   },
 
   position: { x: 0, y: 0 },

@@ -15,8 +15,6 @@ import {
 } from "@chakra-ui/react";
 import { CreateNodeType, ProviderType } from "../context/store/types";
 import useStore from "../context/canvas";
-import { bucketSchema } from "../constants/aws/types/storage/bucket";
-import { generateName } from "../utils/nameGenerator";
 import { InfraCanvaState } from "../context/store/types";
 
 const selector = (state: InfraCanvaState) => ({
@@ -37,22 +35,7 @@ export function SideBarDrawer() {
     tag: string;
     provider: string;
   }) {
-    const node = {
-      configuration: {
-        bucket: generateName(),
-        tags: [
-          { key: "Environment", value: "Dev" },
-          { key: "Project", value: "ProjectX" },
-        ],
-      },
-    };
-
-    const validatedData = bucketSchema.safeParse(node);
-    if (!validatedData.success) {
-      console.log(validatedData.error, "error parsing data");
-      return;
-    }
-    createNode(service, validatedData.data);
+    createNode(service);
   }
 
   const { isOpen, onOpen, onClose } = useDisclosure();

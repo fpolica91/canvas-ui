@@ -3,7 +3,7 @@ import { z } from "zod";
 export const bucketSchema = z.object({
   configuration: z.object({
     bucket: z.string().nullable(),
-    tags: z.array(z.object({ key: z.string(), value: z.string() })).nullable(),
+    tags: z.array(z.object({ key: z.string(), value: z.string() })).optional(),
   }),
   public_access_block: z
     .object({

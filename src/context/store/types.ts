@@ -9,7 +9,6 @@ import {
   OnConnect,
   NodeProps,
 } from "reactflow";
-import { BucketType } from "../../constants/aws/types/storage/bucket";
 import { ServicesType } from "../../types/services/CloudServices";
 import { TerraformSchemaType } from "../../types/terraform/schema";
 
@@ -42,9 +41,9 @@ export type InfraCanvaState = {
   onConnect: OnConnect;
   position: { x: number; y: number };
   nodeTypes: { [key: string]: ComponentType<NodeProps> };
-  createNode(services: CreateNodeType, nodeData: BucketType): void;
+  createNode(services: CreateNodeType): void;
   provider: string;
-  createDefaultStorageNode: (type: string) => Promise<void>;
+  createDefaultNode: (type: string) => Promise<void>;
   services: ServicesType;
   onProviderChange: (provider: ProviderType) => void;
   terraformString: string;

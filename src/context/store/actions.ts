@@ -11,10 +11,11 @@ import { getBuckets } from "../../client/aws/storage/s3bucket";
 import { getProvider } from "../../client/methods";
 import { initialAwsServices } from "../../constants/aws/storage";
 import { initialAzureServices } from "../../constants/azure/storage";
-import { BucketType } from "../../constants/aws/types/storage/bucket";
 import { CreateNodeType, ProviderType } from "../store/types";
 import { StoreApi } from "zustand";
 import { InfraCanvaState } from "./types";
+import { createInitialNodeData } from "../../utils/initialNodedata";
+import { getLambda } from "../../client/aws/compute/lambda";
 
 export const actions = (
   get: StoreApi<InfraCanvaState>["getState"],
@@ -99,22 +100,61 @@ export const actions = (
     });
   },
   handleAmazonServiceCreate: async (service: CreateNodeType) => {
-    switch (service.tag) {
-      case "storage": {
-        await get().createDefaultStorageNode(service.type);
+    const nodeData = createInitialNodeData(service);
+
+    let response = null;
+    switch (service.type) {
+      case "s3": {
+        const payload = {
+          buckets: [nodeData],
+        };
+        response = await getBuckets(payload);
+        break;
+      }
+      case "lambda": {
+        const payload = {
+          provider: get().provider,
+          lambdas: [nodeData],
+        };
+
+        response = await getLambda(payload);
+        console.log(response, "the response");
         break;
       }
     }
+
+    if (!response) return;
+
+    set({
+      terraform: {
+        ...get().terraform,
+        resourceString:
+          get().terraform.resourceString + response.resourcesString,
+      },
+    });
   },
-  createDefaultStorageNode: async (type: string) => {
-    const nodes = get().nodes.map((node) => node.data.nodeData);
-    const payload = {
-      buckets: nodes,
-    };
+
+  // createDefaultComputeNode: async (type: string) => {},
+
+  createDefaultNode: async (type: string) => {
+    const nodes = get()
+      .nodes.filter((node) => node.type === type)
+      .map((node) => node.data.nodeData);
     let response = null;
     switch (type) {
       case "s3": {
+        const payload = {
+          buckets: nodes,
+        };
         response = await getBuckets(payload);
+        break;
+      }
+      case "lambda": {
+        const payload = {
+          lambdas: nodes,
+        };
+
+        response = await getLambda(payload);
         break;
       }
     }
@@ -129,14 +169,16 @@ export const actions = (
     });
   },
 
-  createNode: async (service: CreateNodeType, nodeData: BucketType) => {
+  createNode: async (service: CreateNodeType) => {
     const id = uuidv4();
     const position = get().position;
-    const data = { label: service.name, nodeData: nodeData };
+    const nodeData = createInitialNodeData(service);
+    const data = { label: service.type, nodeData: nodeData };
     set({
       nodes: [...get().nodes, { id, type: service.type, data, position }],
     });
     set({ position: { x: position.x + 50, y: position.y + 50 } });
+
     await get().handleAmazonServiceCreate(service);
   },
 });

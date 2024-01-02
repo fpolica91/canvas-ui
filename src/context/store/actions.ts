@@ -16,12 +16,16 @@ import { StoreApi } from "zustand";
 import { InfraCanvaState } from "./types";
 import { createInitialNodeData } from "../../utils/initialNodedata";
 import { getLambda } from "../../client/aws/compute/lambda";
+import { getVpc } from "../../client/aws/network/vpc";
+import { getEC2 } from "../../client/aws/compute/ec2";
 
 export const actions = (
   get: StoreApi<InfraCanvaState>["getState"],
   set: StoreApi<InfraCanvaState>["setState"]
 ) => ({
   onNodesChange: (changes: NodeChange[]) => {
+    console.log(changes[0]);
+    // const node = get().nodes.find((node) => node.id === );
     set({
       nodes: applyNodeChanges(changes, get().nodes),
     });
@@ -43,7 +47,6 @@ export const actions = (
     set({ provider: provider });
     switch (provider) {
       case "aws": {
-        set({ services: initialAwsServices });
         set({
           providerConfig: {
             provider: "aws",
@@ -60,13 +63,14 @@ export const actions = (
             providerString: data.providerString,
             variableString: data.variablesString,
           },
+          services: initialAwsServices,
         });
+
         break;
       }
 
       case "azure":
         {
-          set({ services: initialAzureServices });
           set({
             providerConfig: {
               provider: "azurerm",
@@ -81,6 +85,7 @@ export const actions = (
               providerString: data.providerString,
               variableString: data.variablesString,
             },
+            services: initialAzureServices,
           });
         }
 
@@ -99,6 +104,7 @@ export const actions = (
       edges: addEdge(connection, get().edges),
     });
   },
+
   handleAmazonServiceCreate: async (service: CreateNodeType) => {
     const nodeData = createInitialNodeData(service);
 
@@ -116,9 +122,22 @@ export const actions = (
           provider: get().provider,
           lambdas: [nodeData],
         };
-
         response = await getLambda(payload);
-        console.log(response, "the response");
+        break;
+      }
+      case "ec2": {
+        const payload = {
+          provider: get().provider,
+          vms: [nodeData],
+        };
+        response = await getEC2(payload);
+        break;
+      }
+      case "vpc": {
+        const payload = {
+          vpcs: [nodeData],
+        };
+        response = await getVpc(payload);
         break;
       }
     }
@@ -129,7 +148,8 @@ export const actions = (
       terraform: {
         ...get().terraform,
         resourceString:
-          get().terraform.resourceString + response.resourcesString,
+          get().terraform.resourceString.trimStart() +
+          response.resourcesString.trimEnd(),
       },
     });
   },

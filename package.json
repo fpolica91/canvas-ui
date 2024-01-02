@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "assets": "npx @svgr/cli --typescript --out-dir src/assets/components -- public",
+    "assets": "npx @svgr/cli --typescript --ignore-existing  --out-dir src/assets/components -- public",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"

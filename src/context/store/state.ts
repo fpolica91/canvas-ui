@@ -1,5 +1,6 @@
 import { EC2Node } from "../../components/nodes/aws/compute/ec2";
 import { LambdaNode } from "../../components/nodes/aws/compute/lambda";
+import { VPCNode } from "../../components/nodes/aws/network/VpcNode";
 import { S3StorageNode } from "../../components/nodes/aws/storage/S3";
 import { StorageGateway } from "../../components/nodes/aws/storage/StorageGateway";
 import { initialAwsServices } from "../../constants/aws/storage";
@@ -26,6 +27,7 @@ export const initialState = {
     storage_gateway: StorageGateway,
     lambda: LambdaNode,
     ec2: EC2Node,
+    vpc: VPCNode,
   },
 
   position: { x: 0, y: 0 },

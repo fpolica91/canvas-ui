@@ -28,13 +28,7 @@ export function SideBarDrawer() {
   const { createNode, services, handleProviderChange, provider } =
     useStore(selector);
 
-  function handleCreateNode(service: {
-    name: string;
-    icon: string;
-    type: string;
-    tag: string;
-    provider: string;
-  }) {
+  function handleCreateNode(service: CreateNodeType) {
     createNode(service);
   }
 
@@ -100,6 +94,7 @@ export function SideBarDrawer() {
             <ServiceSection title="Compute" items={services.compute} />
 
             <ServiceSection title="Storage" items={services.storage} />
+            <ServiceSection title="Network" items={services.network} />
           </DrawerBody>
         </DrawerContent>
       </Drawer>

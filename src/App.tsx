@@ -1,10 +1,11 @@
 import { SideBarDrawer } from "./components/Drawer";
 import Flow from "./components/Flow";
-import { ChakraProvider, Box } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { Editors } from "./components/Editors";
 import { useEffect } from "react";
 
 import useStore from "./context/canvas";
+import { SaasProvider } from "@saas-ui/react";
 
 function App() {
   const setInitialTerraformState = useStore.use.setInitialTerraformState();
@@ -14,9 +15,9 @@ function App() {
   }, []);
 
   return (
-    <ChakraProvider>
-      <Box className="App" height="100vh" position="relative">
-        <Box position="absolute" top="0" left="0" zIndex="overlay">
+    <SaasProvider>
+      <Box className="App" height="100vh">
+        <Box position="relative" top="0" left="0" zIndex="overlay">
           <SideBarDrawer />
         </Box>
         <Flow />
@@ -24,7 +25,7 @@ function App() {
           <Editors />
         </Box>
       </Box>
-    </ChakraProvider>
+    </SaasProvider>
   );
 }
 

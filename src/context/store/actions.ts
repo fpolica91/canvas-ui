@@ -11,16 +11,21 @@ import { getBuckets } from "../../client/aws/storage/s3bucket";
 import { getProvider } from "../../client/methods";
 import { initialAwsServices } from "../../constants/aws/storage";
 import { initialAzureServices } from "../../constants/azure/storage";
-import { BucketType } from "../../constants/aws/types/storage/bucket";
 import { CreateNodeType, ProviderType } from "../store/types";
 import { StoreApi } from "zustand";
 import { InfraCanvaState } from "./types";
+import { createInitialNodeData } from "../../utils/initialNodedata";
+import { getLambda } from "../../client/aws/compute/lambda";
+import { getVpc } from "../../client/aws/network/vpc";
+import { getEC2 } from "../../client/aws/compute/ec2";
 
 export const actions = (
   get: StoreApi<InfraCanvaState>["getState"],
   set: StoreApi<InfraCanvaState>["setState"]
 ) => ({
   onNodesChange: (changes: NodeChange[]) => {
+    console.log(changes[0]);
+    // const node = get().nodes.find((node) => node.id === );
     set({
       nodes: applyNodeChanges(changes, get().nodes),
     });
@@ -42,7 +47,6 @@ export const actions = (
     set({ provider: provider });
     switch (provider) {
       case "aws": {
-        set({ services: initialAwsServices });
         set({
           providerConfig: {
             provider: "aws",
@@ -59,13 +63,14 @@ export const actions = (
             providerString: data.providerString,
             variableString: data.variablesString,
           },
+          services: initialAwsServices,
         });
+
         break;
       }
 
       case "azure":
         {
-          set({ services: initialAzureServices });
           set({
             providerConfig: {
               provider: "azurerm",
@@ -80,6 +85,7 @@ export const actions = (
               providerString: data.providerString,
               variableString: data.variablesString,
             },
+            services: initialAzureServices,
           });
         }
 
@@ -98,23 +104,77 @@ export const actions = (
       edges: addEdge(connection, get().edges),
     });
   },
+
   handleAmazonServiceCreate: async (service: CreateNodeType) => {
-    switch (service.tag) {
-      case "storage": {
-        await get().createDefaultStorageNode(service.type);
+    const nodeData = createInitialNodeData(service);
+
+    let response = null;
+    switch (service.type) {
+      case "s3": {
+        const payload = {
+          buckets: [nodeData],
+        };
+        response = await getBuckets(payload);
+        break;
+      }
+      case "lambda": {
+        const payload = {
+          provider: get().provider,
+          lambdas: [nodeData],
+        };
+        response = await getLambda(payload);
+        break;
+      }
+      case "ec2": {
+        const payload = {
+          provider: get().provider,
+          vms: [nodeData],
+        };
+        response = await getEC2(payload);
+        break;
+      }
+      case "vpc": {
+        const payload = {
+          vpcs: [nodeData],
+        };
+        response = await getVpc(payload);
         break;
       }
     }
+
+    if (!response) return;
+
+    set({
+      terraform: {
+        ...get().terraform,
+        resourceString:
+          get().terraform.resourceString.trimStart() +
+          response.resourcesString.trimEnd(),
+      },
+    });
   },
-  createDefaultStorageNode: async (type: string) => {
-    const nodes = get().nodes.map((node) => node.data.nodeData);
-    const payload = {
-      buckets: nodes,
-    };
+
+  // createDefaultComputeNode: async (type: string) => {},
+
+  createDefaultNode: async (type: string) => {
+    const nodes = get()
+      .nodes.filter((node) => node.type === type)
+      .map((node) => node.data.nodeData);
     let response = null;
     switch (type) {
       case "s3": {
+        const payload = {
+          buckets: nodes,
+        };
         response = await getBuckets(payload);
+        break;
+      }
+      case "lambda": {
+        const payload = {
+          lambdas: nodes,
+        };
+
+        response = await getLambda(payload);
         break;
       }
     }
@@ -129,14 +189,16 @@ export const actions = (
     });
   },
 
-  createNode: async (service: CreateNodeType, nodeData: BucketType) => {
+  createNode: async (service: CreateNodeType) => {
     const id = uuidv4();
     const position = get().position;
-    const data = { label: service.name, nodeData: nodeData };
+    const nodeData = createInitialNodeData(service);
+    const data = { label: service.type, nodeData: nodeData };
     set({
       nodes: [...get().nodes, { id, type: service.type, data, position }],
     });
     set({ position: { x: position.x + 50, y: position.y + 50 } });
+
     await get().handleAmazonServiceCreate(service);
   },
 });

@@ -38,4 +38,27 @@ export const initialAwsServices = {
       provider: "aws",
     },
   ],
+  network: [
+    {
+      name: "VPC",
+      icon: "/vpc_icon.svg",
+      type: "vpc",
+      tag: "network",
+      provider: "aws",
+    },
+    // {
+    //   name: "Route 53",
+    //   icon: "/route_53_icon.svg",
+    //   type: "route_53",
+    //   tag: "network",
+    //   provider: "aws",
+    // },
+    // {
+    //   name: "Direct Connect",
+    //   icon: "/direct_connect_icon.svg",
+    //   type: "direct_connect",
+    //   tag: "network",
+    //   provider: "aws",
+    // },
+  ],
 };

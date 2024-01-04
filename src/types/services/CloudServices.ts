@@ -19,6 +19,15 @@ export const Services = z.object({
       provider: z.string(),
     })
   ),
+  network: z.array(
+    z.object({
+      name: z.string(),
+      icon: z.string(),
+      type: z.string(),
+      tag: z.string(),
+      provider: z.string(),
+    })
+  ),
 });
 
 export type ServicesType = z.infer<typeof Services>;

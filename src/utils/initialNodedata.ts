@@ -5,24 +5,22 @@ import { bucketSchema } from "../constants/aws/types/storage/bucket";
 import { CreateNodeType } from "../context/store/types";
 import { generateName } from "./nameGenerator";
 
-export function createInitialNodeData(service: CreateNodeType, name?: string) {
+export function createInitialNodeData(service: CreateNodeType, resourceName?: string) {
   switch (service.provider) {
     case "aws": {
-      const node = handleAmazonProviderNodes(service, name);
+      const node = handleAmazonProviderNodes(service, resourceName);
       return node;
     }
   }
 }
 
 function handleAmazonProviderNodes(service: CreateNodeType, resourceName?: string) {
-  if (!resourceName) {
-    service.resourceName = resourceName = generateName()
-  }
+    service.resourceName = resourceName || generateName()
   switch (service.type) {
     case "s3": {
       const node = {
         configuration: {
-          bucket: resourceName
+          bucket: service.resourceName
         },
       };
 
@@ -34,7 +32,7 @@ function handleAmazonProviderNodes(service: CreateNodeType, resourceName?: strin
       return validatedData.data;
     }
     case "lambda": {
-      const name = generateName();
+      const name = service.resourceName;
       const node = {
         configuration: {
           name,
@@ -51,7 +49,7 @@ function handleAmazonProviderNodes(service: CreateNodeType, resourceName?: strin
       return validatedData.data;
     }
     case "ec2": {
-      const name = generateName();
+      const name = service.resourceName;
       const node = {
         configuration: {
           name,
@@ -70,7 +68,7 @@ function handleAmazonProviderNodes(service: CreateNodeType, resourceName?: strin
     case "vpc": {
       const node = {
         configuration: {
-          name: generateName(),
+          name: service.resourceName,
           cidr_block: "10.0.0.0/16",
         },
       };

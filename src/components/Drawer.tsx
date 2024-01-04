@@ -47,7 +47,7 @@ export function SideBarDrawer() {
     items: CreateNodeType[];
   }) {
     return (
-      <SidebarSection aria-label="Main" bg="white">
+      <SidebarSection aria-label="Main">
         <NavGroup isCollapsible title={title} textAlign="left">
           <Grid templateColumns="repeat(3, 1fr)" gap={4}>
             {items.map((service) => (

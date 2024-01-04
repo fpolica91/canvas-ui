@@ -3,8 +3,11 @@ import type { SVGProps } from "react";
 const SvgStorageGatewayIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width={37}
-    height={44}
+    // width={37}
+    // height={44}
+    width={24}
+    height={24}
+    viewBox="0 0 37 44"
     fill="none"
     {...props}
   >

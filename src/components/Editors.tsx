@@ -53,7 +53,10 @@ function Editor({
         theme="dracula"
         name={`${name}.tf`}
         value={terraformString}
+        readOnly={true}
         width="100%"
+        tabSize={2}
+        focus={true}
         height="90vh"
       />
     </TabPanel>

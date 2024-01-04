@@ -1,71 +1,37 @@
 import {
-  useDisclosure,
   Button,
-  Drawer,
-  DrawerOverlay,
-  DrawerContent,
-  DrawerHeader,
-  DrawerBody,
-  Box,
+  IconButton,
   Image,
-  Text,
+  useDisclosure,
   VStack,
-  SimpleGrid,
-  Select,
+  Grid,
 } from "@chakra-ui/react";
-import { CreateNodeType, ProviderType } from "../context/store/types";
-import useStore from "../context/canvas";
-import { bucketSchema } from "../constants/aws/types/storage/bucket";
-import { generateName } from "../utils/nameGenerator";
-import { InfraCanvaState } from "../context/store/types";
+import {
+  AppShell,
+  Sidebar,
+  SidebarSection,
+  SidebarOverlay,
+  NavGroup,
+} from "@saas-ui/react";
 
-const selector = (state: InfraCanvaState) => ({
-  createNode: state.createNode,
-  handleProviderChange: state.onProviderChange,
-  services: state.services,
-  provider: state.provider,
-});
+import { FiChevronsRight, FiChevronsLeft } from "react-icons/fi";
+import useStore from "../context/canvas";
+import { CreateNodeType } from "../context/store/types";
 
 export function SideBarDrawer() {
-  const { createNode, services, handleProviderChange, provider } =
-    useStore(selector);
+  const services = useStore.use.services();
+  const createNode = useStore.use.createNode();
 
-  function handleCreateNode(service: {
-    name: string;
-    icon: string;
-    type: string;
-    tag: string;
-    provider: string;
-  }) {
-    const node = {
-      configuration: {
-        bucket: generateName(),
-        tags: [
-          { key: "Environment", value: "Dev" },
-          { key: "Project", value: "ProjectX" },
-        ],
-      },
-    };
-
-    const validatedData = bucketSchema.safeParse(node);
-    if (!validatedData.success) {
-      console.log(validatedData.error, "error parsing data");
-      return;
-    }
-    createNode(service, validatedData.data);
-  }
-
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
+  const { isOpen, onToggle } = useDisclosure();
   const ServiceButton = ({ service }: { service: CreateNodeType }) => (
     <Button
       w="100%"
       h="auto"
-      p={2}
+      p={1}
       borderWidth="1px"
       borderRadius="md"
       variant="outline"
-      onClick={() => handleCreateNode(service)}
+      onClick={() => createNode(service)}
     >
       <VStack>
         <Image src={service.icon} boxSize="50px" alt={service.name} />
@@ -73,53 +39,52 @@ export function SideBarDrawer() {
     </Button>
   );
 
-  const ServiceSection = ({
+  function ServiceSection({
     title,
     items,
   }: {
     title: string;
     items: CreateNodeType[];
-  }) => (
-    <Box my={4}>
-      <Text fontSize="xl" fontWeight="bold" mb={4}>
-        {title}
-      </Text>
-      <SimpleGrid columns={3} spacing={4}>
-        {items.map((service) => (
-          <ServiceButton key={service.name} service={service} />
-        ))}
-      </SimpleGrid>
-    </Box>
-  );
+  }) {
+    return (
+      <SidebarSection aria-label="Main">
+        <NavGroup isCollapsible title={title} textAlign="left">
+          <Grid templateColumns="repeat(3, 1fr)" gap={4}>
+            {items.map((service) => (
+              <ServiceButton key={service.name} service={service} />
+            ))}
+          </Grid>
+        </NavGroup>
+      </SidebarSection>
+    );
+  }
 
   return (
-    <>
-      <Button colorScheme="blue" onClick={onOpen}>
-        Open AWS Services
-      </Button>
-      <Drawer placement="left" onClose={onClose} isOpen={isOpen}>
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerHeader borderBottomWidth="1px">AWS Services</DrawerHeader>
-          <DrawerBody>
-            <Select
-              value={provider}
-              placeholder="Select provider"
-              mb={4}
-              onChange={(e) =>
-                handleProviderChange(e.target.value as ProviderType)
-              }
-            >
-              <option value="aws">Amazon Web Services (AWS)</option>
-              <option value="gcp">Google Cloud Platform (GCP)</option>
-              <option value="azure">Microsoft Azure</option>
-            </Select>
-            <ServiceSection title="Compute" items={services.compute} />
-
-            <ServiceSection title="Storage" items={services.storage} />
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
-    </>
+    <AppShell
+      sidebar={
+        <Sidebar
+          toggleBreakpoint={false}
+          variant={isOpen ? "default" : "compact"}
+          transition="width"
+          transitionDuration="normal"
+          width={isOpen ? 500 : "14"}
+          height="100vh"
+        >
+          <SidebarSection direction={isOpen ? "row" : "column"}>
+            <IconButton
+              onClick={onToggle}
+              variant="ghost"
+              size="sm"
+              icon={isOpen ? <FiChevronsLeft /> : <FiChevronsRight />}
+              aria-label="Toggle Sidebar"
+            />
+          </SidebarSection>
+          <ServiceSection title="Compute" items={services.compute} />
+          <ServiceSection title="Storage" items={services.storage} />
+          <ServiceSection title="Network" items={services.network} />
+          <SidebarOverlay />
+        </Sidebar>
+      }
+    />
   );
 }

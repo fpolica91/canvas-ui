@@ -17,6 +17,8 @@ const Flow = () => {
   const { nodes, edges, onNodesChange, onEdgesChange, onConnect, nodeTypes } =
     useStore(selector);
 
+    console.log('Nodes lmao', nodes)
+
   return (
     <ReactFlow
       nodes={nodes}

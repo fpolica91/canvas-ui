@@ -69,6 +69,7 @@ export function SideBarDrawer() {
     >
       <VStack>
         <Image src={service.icon} boxSize="50px" alt={service.name} />
+        <Text mt={1} fontSize={8.5} px={'50px'}>{service.name}</Text>
       </VStack>
     </Button>
   );

@@ -1,22 +1,23 @@
-import { Handle, NodeProps, Position } from "reactflow";
-import { Flex } from "@chakra-ui/react";
 import { StorageGatewayIcon } from "../../../../assets/components";
+import { CanvasNodeProps } from "../../../../constants/types/canvasNode";
+import { BaseNode } from "../../BaseNode";
 
-export const StorageGateway = ({ isConnectable }: NodeProps) => {
+interface StorageGatewayNodeProps extends CanvasNodeProps {}
+
+export const StorageGatewayNode = ({ isConnectable, data }: StorageGatewayNodeProps) => {
+
   return (
-    <Flex borderWidth="1px" p={1} borderRadius="md" shadow="md">
-      <Handle
-        type="target"
-        position={Position.Top}
-        isConnectable={isConnectable}
-      />
-      <StorageGatewayIcon />
-
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        isConnectable={isConnectable}
-      />
-    </Flex>
-  );
+    <BaseNode 
+      nodeIcon={<StorageGatewayIcon />}
+      id={data.id}
+      data={data}
+      isConnectable={isConnectable}
+      type={""}
+      zIndex={0}
+      xPos={0}
+      yPos={0}
+      dragging={false}
+      selected={false}
+    />
+  )
 };

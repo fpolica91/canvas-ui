@@ -5,6 +5,7 @@ import {
   useDisclosure,
   VStack,
   Grid,
+  Text
 } from "@chakra-ui/react";
 import {
   AppShell,

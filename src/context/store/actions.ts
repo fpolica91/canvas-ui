@@ -94,21 +94,32 @@ export const actions = (
         set({ services: initialAwsServices });
     }
   },
+
   onEdgesChange: (changes: EdgeChange[]) => {
     set({
       edges: applyEdgeChanges(changes, get().edges),
     });
   },
+
   onConnect: (connection: Connection) => {
     set({
       edges: addEdge(connection, get().edges),
     });
   },
 
-  handleAmazonServiceCreate: async (service: CreateNodeType) => {
-    const nodeData = createInitialNodeData(service);
+  handleAmazonServiceCreate: async (service: CreateNodeType, nodeData: unknown, resetString = false) => {
+
+    if (resetString) {
+      set({
+        terraform: {
+          ...get().terraform,
+          resourceString: ''
+        },
+      });
+    }
 
     let response = null;
+
     switch (service.type) {
       case "s3": {
         const payload = {
@@ -189,16 +200,38 @@ export const actions = (
     });
   },
 
-  createNode: async (service: CreateNodeType) => {
+  createNode: async (service: CreateNodeType, resourceName?: string) => {
     const id = uuidv4();
     const position = get().position;
-    const nodeData = createInitialNodeData(service);
-    const data = { label: service.type, nodeData: nodeData };
+    const nodeData = createInitialNodeData(service, resourceName);
+    const data = { id, label: service.type, serviceInfo: service, nodeData: nodeData };
     set({
       nodes: [...get().nodes, { id, type: service.type, data, position }],
     });
     set({ position: { x: position.x + 50, y: position.y + 50 } });
 
-    await get().handleAmazonServiceCreate(service);
+    return await get().handleAmazonServiceCreate(service, nodeData);
   },
+
+  deleteNode: async (nodeId: string) => {
+    const filteredNodes = get().nodes.filter((node) => node.id != nodeId)
+    set({
+      nodes: [...filteredNodes],
+    });
+
+    if (filteredNodes.length == 0) {
+      set({
+        terraform: {
+          ...get().terraform,
+          resourceString: '',
+        },
+      });
+    } else {
+      const handleAmazonServiceCreate = get().handleAmazonServiceCreate;
+      const recreateServices = filteredNodes.map((filteredNode, index) => 
+        handleAmazonServiceCreate(filteredNode.data?.serviceInfo, filteredNode.data.nodeData, index == 0))
+      await Promise.all(recreateServices);
+    }
+  },
+
 });

@@ -1,18 +1,23 @@
-import { Handle, NodeProps, Position } from "reactflow";
-import { Flex } from "@chakra-ui/react";
 import { LambdaIcon } from "../../../../assets/components";
+import { BaseNode } from "../../BaseNode";
+import { CanvasNodeProps } from "../../../../constants/types/canvasNode";
 
-export const LambdaNode = ({ isConnectable }: NodeProps) => {
+interface LambdaNodeProps extends CanvasNodeProps {}
+
+export const LambdaNode = ({ isConnectable, data }: LambdaNodeProps) => {
+
   return (
-    <Flex borderWidth="1px" p={1} borderRadius="md" shadow="md">
-      <Handle type="target" position={Position.Top} isConnectable={true} />
-      <LambdaIcon />
-
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        isConnectable={isConnectable}
-      />
-    </Flex>
-  );
+    <BaseNode 
+      nodeIcon={<LambdaIcon />}
+      id={data.id}
+      data={data}
+      isConnectable={isConnectable}
+      type={""}
+      zIndex={0}
+      xPos={0}
+      yPos={0}
+      dragging={false}
+      selected={false}
+    />
+  )
 };

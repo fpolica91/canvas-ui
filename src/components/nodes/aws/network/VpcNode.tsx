@@ -1,18 +1,23 @@
-import { Handle, NodeProps, Position } from "reactflow";
-import { Flex } from "@chakra-ui/react";
 import { VpcIcon } from "../../../../assets/components";
+import { BaseNode } from "../../BaseNode";
+import { CanvasNodeProps } from "../../../../constants/types/canvasNode";
 
-export const VPCNode = ({ isConnectable }: NodeProps) => {
+interface VPCNodeProps extends CanvasNodeProps {}
+
+export const VPCNode = ({ isConnectable, data }: VPCNodeProps) => {
+
   return (
-    <Flex borderWidth="1px" p={1} borderRadius="md" shadow="md">
-      <Handle type="target" position={Position.Top} isConnectable={true} />
-      <VpcIcon />
-
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        isConnectable={isConnectable}
-      />
-    </Flex>
-  );
+    <BaseNode 
+    nodeIcon={<VpcIcon />}
+    id={data.id}
+    data={data}
+    isConnectable={isConnectable}
+    type={""}
+    zIndex={0}
+    xPos={0}
+    yPos={0}
+    dragging={false}
+    selected={false}
+  />
+  )
 };

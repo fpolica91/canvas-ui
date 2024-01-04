@@ -23,6 +23,7 @@ export const providerConfig = z.object({
 
 export const createNodeSchema = z.object({
   name: z.string(),
+  resourceName: z.string().optional(),
   icon: z.string(),
   type: z.string(),
   tag: z.string(),
@@ -42,6 +43,7 @@ export type InfraCanvaState = {
   position: { x: number; y: number };
   nodeTypes: { [key: string]: ComponentType<NodeProps> };
   createNode(services: CreateNodeType): void;
+  deleteNode(nodeId: string): void;
   provider: string;
   createDefaultNode: (type: string) => Promise<void>;
   services: ServicesType;
@@ -50,5 +52,5 @@ export type InfraCanvaState = {
   terraform: TerraformSchemaType;
   providerConfig: ProviderConfigType;
   setInitialTerraformState: () => Promise<void>;
-  handleAmazonServiceCreate: (service: CreateNodeType) => Promise<void>;
+  handleAmazonServiceCreate: (service: CreateNodeType, nodeData: unknown, resetString?: boolean) => Promise<void>;
 };

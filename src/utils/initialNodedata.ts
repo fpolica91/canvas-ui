@@ -5,21 +5,24 @@ import { bucketSchema } from "../constants/aws/types/storage/bucket";
 import { CreateNodeType } from "../context/store/types";
 import { generateName } from "./nameGenerator";
 
-export function createInitialNodeData(service: CreateNodeType) {
+export function createInitialNodeData(service: CreateNodeType, name?: string) {
   switch (service.provider) {
     case "aws": {
-      const node = handleAmazonProviderNodes(service);
+      const node = handleAmazonProviderNodes(service, name);
       return node;
     }
   }
 }
 
-function handleAmazonProviderNodes(service: CreateNodeType) {
+function handleAmazonProviderNodes(service: CreateNodeType, resourceName?: string) {
+  if (!resourceName) {
+    service.resourceName = resourceName = generateName()
+  }
   switch (service.type) {
     case "s3": {
       const node = {
         configuration: {
-          bucket: generateName(),
+          bucket: resourceName
         },
       };
 
@@ -28,7 +31,6 @@ function handleAmazonProviderNodes(service: CreateNodeType) {
         console.log(validatedData.error, "the error");
         throw new Error("Invalid data");
       }
-
       return validatedData.data;
     }
     case "lambda": {

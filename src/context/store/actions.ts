@@ -5,6 +5,8 @@ import {
   applyEdgeChanges,
   Connection,
   addEdge,
+  Instance,
+  Node,
 } from "reactflow";
 import { v4 as uuidv4 } from "uuid";
 import { getBuckets } from "../../client/aws/storage/s3bucket";
@@ -18,17 +20,43 @@ import { createInitialNodeData } from "../../utils/initialNodedata";
 import { getLambda } from "../../client/aws/compute/lambda";
 import { getVpc } from "../../client/aws/network/vpc";
 import { getEC2 } from "../../client/aws/compute/ec2";
+import type { MouseEvent as ReactMouseEvent } from "react";
 
 export const actions = (
   get: StoreApi<InfraCanvaState>["getState"],
   set: StoreApi<InfraCanvaState>["setState"]
 ) => ({
   onNodesChange: (changes: NodeChange[]) => {
-    console.log(changes[0]);
-    // const node = get().nodes.find((node) => node.id === );
     set({
       nodes: applyNodeChanges(changes, get().nodes),
     });
+  },
+  onDragStop: (
+    _: ReactMouseEvent,
+    node: Node,
+    getIntersectingNodes: Instance.GetIntersectingNodes<never>
+  ) => {
+    const intersections = getIntersectingNodes(node).map((n) => n.id);
+    const intersecNode = get().nodes.find(
+      (node) => intersections[0] === node.id
+    );
+    if (intersecNode?.type === "vpc") {
+      const updatedNode = {
+        ...node,
+        parentNode: intersecNode.id,
+        extent: "parent",
+        position: {
+          x: node.position.x - intersecNode.position.x,
+          y: node.position.y - intersecNode.position.y,
+        },
+      } as Node;
+      const nodes = get().nodes.map((n) =>
+        n.id === updatedNode.id! ? updatedNode : n
+      );
+      set({
+        nodes,
+      });
+    }
   },
 
   setInitialTerraformState: async () => {
@@ -107,13 +135,16 @@ export const actions = (
     });
   },
 
-  handleAmazonServiceCreate: async (service: CreateNodeType, nodeData: unknown, resetString = false) => {
-
+  handleAmazonServiceCreate: async (
+    service: CreateNodeType,
+    nodeData: unknown,
+    resetString = false
+  ) => {
     if (resetString) {
       set({
         terraform: {
           ...get().terraform,
-          resourceString: ''
+          resourceString: "",
         },
       });
     }
@@ -204,7 +235,12 @@ export const actions = (
     const id = uuidv4();
     const position = get().position;
     const nodeData = createInitialNodeData(service, resourceName);
-    const data = { id, label: service.type, serviceInfo: service, nodeData: nodeData };
+    const data = {
+      id,
+      label: service.type,
+      serviceInfo: service,
+      nodeData: nodeData,
+    };
     set({
       nodes: [...get().nodes, { id, type: service.type, data, position }],
     });
@@ -214,7 +250,7 @@ export const actions = (
   },
 
   deleteNode: async (nodeId: string) => {
-    const filteredNodes = get().nodes.filter((node) => node.id != nodeId)
+    const filteredNodes = get().nodes.filter((node) => node.id != nodeId);
     set({
       nodes: [...filteredNodes],
     });
@@ -223,15 +259,19 @@ export const actions = (
       set({
         terraform: {
           ...get().terraform,
-          resourceString: '',
+          resourceString: "",
         },
       });
     } else {
       const handleAmazonServiceCreate = get().handleAmazonServiceCreate;
-      const recreateServices = filteredNodes.map((filteredNode, index) => 
-        handleAmazonServiceCreate(filteredNode.data?.serviceInfo, filteredNode.data.nodeData, index == 0))
+      const recreateServices = filteredNodes.map((filteredNode, index) =>
+        handleAmazonServiceCreate(
+          filteredNode.data?.serviceInfo,
+          filteredNode.data.nodeData,
+          index == 0
+        )
+      );
       await Promise.all(recreateServices);
     }
   },
-
 });

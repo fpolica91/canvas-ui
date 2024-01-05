@@ -1,23 +1,22 @@
-import ReactFlow, { Background, Controls } from "reactflow";
-
+import ReactFlow, { Background, Controls, useReactFlow, Node } from "reactflow";
+import type { MouseEvent as ReactMouseEvent } from "react";
 import "reactflow/dist/style.css";
 import useStore from "../context/canvas";
-import { InfraCanvaState } from "../context/store/types";
-
-const selector = (state: InfraCanvaState) => ({
-  nodes: state.nodes,
-  edges: state.edges,
-  onNodesChange: state.onNodesChange,
-  onEdgesChange: state.onEdgesChange,
-  onConnect: state.onConnect,
-  nodeTypes: state.nodeTypes,
-});
 
 const Flow = () => {
-  const { nodes, edges, onNodesChange, onEdgesChange, onConnect, nodeTypes } =
-    useStore(selector);
+  const { getIntersectingNodes } = useReactFlow();
 
-    console.log('Nodes lmao', nodes)
+  const nodes = useStore.use.nodes();
+  const edges = useStore.use.edges();
+  const onNodesChange = useStore.use.onNodesChange();
+  const onEdgesChange = useStore.use.onEdgesChange();
+  const onConnect = useStore.use.onConnect();
+  const nodeTypes = useStore.use.nodeTypes();
+  const onNodeDragStop = useStore.use.onDragStop();
+
+  const handleNodeDragStop = (event: ReactMouseEvent, node: Node) => {
+    onNodeDragStop(event, node, getIntersectingNodes);
+  };
 
   return (
     <ReactFlow
@@ -27,6 +26,7 @@ const Flow = () => {
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
       onConnect={onConnect}
+      onNodeDragStop={handleNodeDragStop}
       fitView
       style={{
         background: "#2d3748",

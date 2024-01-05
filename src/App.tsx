@@ -5,6 +5,7 @@ import { Editors } from "./components/Editors";
 import { useEffect } from "react";
 import useStore from "./context/canvas";
 import { SaasProvider, theme as baseTheme } from "@saas-ui/react";
+import { ReactFlowProvider } from "reactflow";
 
 function App() {
   const setInitialTerraformState = useStore.use.setInitialTerraformState();
@@ -21,17 +22,19 @@ function App() {
   );
 
   return (
-    <SaasProvider theme={theme}>
-      <Box className="App" height="100vh">
-        <Box position="relative" top="0" left="0" zIndex="overlay">
-          <SideBarDrawer />
+    <ReactFlowProvider>
+      <SaasProvider theme={theme}>
+        <Box className="App" height="100vh">
+          <Box position="relative" top="0" left="0" zIndex="overlay">
+            <SideBarDrawer />
+          </Box>
+          <Flow />
+          <Box position="absolute" top={0} right={0} width="33%" height="100%">
+            <Editors />
+          </Box>
         </Box>
-        <Flow />
-        <Box position="absolute" top={0} right={0} width="33%" height="100%">
-          <Editors />
-        </Box>
-      </Box>
-    </SaasProvider>
+      </SaasProvider>
+    </ReactFlowProvider>
   );
 }
 

@@ -5,7 +5,7 @@ import {
   useDisclosure,
   VStack,
   Grid,
-  Text
+  Text,
 } from "@chakra-ui/react";
 import {
   AppShell,
@@ -36,7 +36,9 @@ export function SideBarDrawer() {
     >
       <VStack>
         <Image src={service.icon} boxSize="50px" alt={service.name} />
-        <Text mt={1} fontSize={8.5} px={'50px'}>{service.name}</Text>
+        <Text mt={1} fontSize={8.5} px={"50px"}>
+          {service.name}
+        </Text>
       </VStack>
     </Button>
   );
@@ -69,14 +71,16 @@ export function SideBarDrawer() {
           variant={isOpen ? "default" : "compact"}
           transition="width"
           transitionDuration="normal"
-          width={isOpen ? 500 : "14"}
+          width={isOpen ? 500 : 0}
           height="100vh"
         >
           <SidebarSection direction={isOpen ? "row" : "column"}>
             <IconButton
+              _hover={{ bg: "transparent" }}
               onClick={onToggle}
-              variant="ghost"
-              size="sm"
+              variant="outline"
+              size="lg"
+              color={isOpen ? "gray.800" : "gray.200"}
               icon={isOpen ? <FiChevronsLeft /> : <FiChevronsRight />}
               aria-label="Toggle Sidebar"
             />

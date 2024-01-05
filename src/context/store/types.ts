@@ -1,6 +1,6 @@
 import { ComponentType } from "react";
 import { z } from "zod";
-
+import type { MouseEvent as ReactMouseEvent } from "react";
 import {
   Edge,
   Node,
@@ -8,6 +8,7 @@ import {
   OnEdgesChange,
   OnConnect,
   NodeProps,
+  Instance,
 } from "reactflow";
 import { ServicesType } from "../../types/services/CloudServices";
 import { TerraformSchemaType } from "../../types/terraform/schema";
@@ -52,5 +53,15 @@ export type InfraCanvaState = {
   terraform: TerraformSchemaType;
   providerConfig: ProviderConfigType;
   setInitialTerraformState: () => Promise<void>;
-  handleAmazonServiceCreate: (service: CreateNodeType, nodeData: unknown, resetString?: boolean) => Promise<void>;
+  handleAmazonServiceCreate: (
+    service: CreateNodeType,
+    nodeData: unknown,
+    resetString?: boolean
+  ) => Promise<void>;
+  onDragStop: (
+    event: ReactMouseEvent,
+    node: Node,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    getIntersectingNodes: Instance.GetIntersectingNodes<any>
+  ) => void;
 };

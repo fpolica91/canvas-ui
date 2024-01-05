@@ -197,8 +197,6 @@ export const actions = (
     });
   },
 
-  // createDefaultComputeNode: async (type: string) => {},
-
   createDefaultNode: async (type: string) => {
     const nodes = get()
       .nodes.filter((node) => node.type === type)
@@ -260,6 +258,7 @@ export const actions = (
             ...node,
           };
         }
+        return node;
       }) as Node[];
 
     set({

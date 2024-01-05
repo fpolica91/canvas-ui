@@ -53,6 +53,7 @@ export const actions = (
       const nodes = get().nodes.map((n) =>
         n.id === updatedNode.id! ? updatedNode : n
       );
+
       set({
         nodes,
       });
@@ -250,7 +251,17 @@ export const actions = (
   },
 
   deleteNode: async (nodeId: string) => {
-    const filteredNodes = get().nodes.filter((node) => node.id != nodeId);
+    const filteredNodes = get()
+      .nodes.filter((node) => node.id !== nodeId)
+      .map((node) => {
+        if (node.parentNode === nodeId) {
+          delete node.parentNode;
+          return {
+            ...node,
+          };
+        }
+      }) as Node[];
+
     set({
       nodes: [...filteredNodes],
     });

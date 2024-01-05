@@ -24,12 +24,12 @@ export function Editors() {
       <Tabs isFitted variant="enclosed">
         <TabList mb="1em">
           {editors.map((name) => {
-            return <Tab>{name}</Tab>;
+            return <Tab key={name}>{name}</Tab>;
           })}
         </TabList>
         <TabPanels>
           {editors.map((name) => {
-            return <Editor terraform={terraform} name={name} />;
+            return <Editor terraform={terraform} name={name} key={name} />;
           })}
         </TabPanels>
       </Tabs>

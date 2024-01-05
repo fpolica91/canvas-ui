@@ -22,15 +22,20 @@ export const BaseNode = ({
 }: BaseNodeProps) => {
   const [toolBar, setToolBar] = useState(false);
   const deleteNode = useStore.use.deleteNode();
+  const deattachNodeFromParent = useStore.use.onDeattachFromParent();
 
   const handleRemoveNode = () => {
     deleteNode(data.id);
+  };
+  const handleDeattachNodeFromParent = () => {
+    deattachNodeFromParent(data.id);
   };
 
   return (
     <>
       {resizeable && <NodeResizer minWidth={100} minHeight={50} />}
       <ToolBar
+        deattachNodeFromParent={handleDeattachNodeFromParent}
         toolbarVisible={toolBar}
         onDeleteAction={handleRemoveNode}
         toolbarPosition="top"

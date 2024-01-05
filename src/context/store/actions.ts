@@ -45,10 +45,6 @@ export const actions = (
         ...node,
         parentNode: intersecNode.id,
         extent: "parent",
-        position: {
-          x: node.position.x - intersecNode.position.x,
-          y: node.position.y - intersecNode.position.y,
-        },
       } as Node;
       const nodes = get().nodes.map((n) =>
         n.id === updatedNode.id! ? updatedNode : n
@@ -58,6 +54,23 @@ export const actions = (
         nodes,
       });
     }
+  },
+
+  onDeattachFromParent: (nodeId: string) => {
+    const nodes = get().nodes.map((node) => {
+      if (node.id === nodeId) {
+        delete node.parentNode;
+        delete node.extent;
+        return {
+          ...node,
+        };
+      }
+      return node;
+    }) as Node[];
+
+    set({
+      nodes,
+    });
   },
 
   setInitialTerraformState: async () => {

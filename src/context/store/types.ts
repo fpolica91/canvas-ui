@@ -53,6 +53,7 @@ export type InfraCanvaState = {
   terraform: TerraformSchemaType;
   providerConfig: ProviderConfigType;
   setInitialTerraformState: () => Promise<void>;
+  onDeattachFromParent: (nodeId: string) => void;
   handleAmazonServiceCreate: (
     service: CreateNodeType,
     nodeData: unknown,

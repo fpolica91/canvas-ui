@@ -7,7 +7,12 @@ export const bucketSchema = z.object({
   }),
   public_access_block: z
     .object({
-      acl: z.string(),
+      acl: z.enum([
+        "private",
+        "public-read",
+        "public-read-write",
+        "authenticated-read",
+      ]),
       block_public_acls: z.boolean(),
       block_public_policy: z.boolean(),
       ignore_public_acls: z.boolean(),

@@ -21,16 +21,27 @@ import { getLambda } from "../../client/aws/compute/lambda";
 import { getVpc } from "../../client/aws/network/vpc";
 import { getEC2 } from "../../client/aws/compute/ec2";
 import type { MouseEvent as ReactMouseEvent } from "react";
+import _ from "lodash";
 
 export const actions = (
   get: StoreApi<InfraCanvaState>["getState"],
   set: StoreApi<InfraCanvaState>["setState"]
 ) => ({
   onNodesChange: (changes: NodeChange[]) => {
+    console.log(get().nodes);
     set({
       nodes: applyNodeChanges(changes, get().nodes),
     });
   },
+  // function will delete current node and create a new one with the same id
+  onNodeDataChange: (node: Node, nodeData: unknown) => {
+    const nodes = get().nodes.filter((n) => n.id !== node.id);
+    const newNode = _.merge(node, { data: { nodeData } });
+    set({
+      nodes: [...nodes, newNode],
+    });
+  },
+
   onDragStop: (
     _: ReactMouseEvent,
     node: Node,

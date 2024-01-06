@@ -27,6 +27,7 @@ import { getEC2 } from "../../client/aws/compute/ec2";
 import type { MouseEvent as ReactMouseEvent } from "react";
 import _ from "lodash";
 import { canvas } from "./state";
+import { axiosInstance } from "../../client/axios";
 export type InfraCanvaStore = InfraCanvaState & InfraCanvaAction;
 export const actions = (
   get: StoreApi<InfraCanvaStore>["getState"],
@@ -39,8 +40,12 @@ export const actions = (
     );
     return currentCanvas;
   },
+  saveCanvas: async () => {
+    const canvases = get().canvases;
+    return await axiosInstance.post("/persist", JSON.stringify(canvases));
+  },
 
-  deleteCanvas: (canvasId: string) => {
+  deleteCanvas: async (canvasId: string) => {
     const currentCanvas = get().getCurrentCanvas();
     console.log(currentCanvas);
     if (!currentCanvas) return;
@@ -52,6 +57,8 @@ export const actions = (
       canvases,
       currentCanvas: canvases[0].id,
     });
+
+    return await axiosInstance.post("/persist", JSON.stringify(canvases));
   },
 
   setCurrentCanvas: (canvasId: string) => {

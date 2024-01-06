@@ -8,6 +8,7 @@ type CustomTabProps = {
   canvas: SingleCanvas;
   setCurrentCanvas: (id: string) => void;
 };
+// todo ensure toolbar can be hidden when clicking away, using blur does not work
 
 export function CustomTab({ canvas, setCurrentCanvas }: CustomTabProps) {
   const [show, setShow] = useState(false);
@@ -17,7 +18,6 @@ export function CustomTab({ canvas, setCurrentCanvas }: CustomTabProps) {
       {show && <ToolBar canvas={canvas} />}
       <Tab
         onContextMenu={() => setShow(!show)}
-        // onBlur={() => setShow(false)}
         onClick={() => setCurrentCanvas(canvas.id)}
         bg="gray.700"
         fontSize="medium"

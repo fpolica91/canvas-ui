@@ -5,6 +5,8 @@ import { SingleCanvas } from "../../context/store/types";
 
 export function ToolBar({ canvas }: { canvas: SingleCanvas }) {
   const deleteCanvas = useStore.use.deleteCanvas();
+  const saveCanvas = useStore.use.saveCanvas();
+
   return (
     <Box
       border="1px solid"
@@ -24,6 +26,7 @@ export function ToolBar({ canvas }: { canvas: SingleCanvas }) {
         variant="outline"
         aria-label="save"
         fontWeight="bold"
+        onClick={saveCanvas}
         icon={<FiSave size={20} />}
       />
       <IconButton

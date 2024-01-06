@@ -52,16 +52,6 @@ function App() {
                   canvas={canvas}
                   setCurrentCanvas={setCurrentCanvas}
                 />
-                // <Tab
-                //   onClick={() => setCurrentCanvas(canvas.id)}
-                //   bg="gray.700"
-                //   fontSize="medium"
-                //   key={canvas.id}
-                //   fontWeight="semibold"
-                //   color="gray.200"
-                // >
-                //   {canvas.name}
-                // </Tab>
               );
             })}
             <Tab fontSize="medium" color="gray.200" onClick={createCanvas}>

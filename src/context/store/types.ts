@@ -10,6 +10,7 @@ import {
 } from "reactflow";
 import { ServicesType } from "../../types/services/CloudServices";
 import { TerraformSchemaType } from "../../types/terraform/schema";
+import { AxiosResponse } from "axios";
 
 export const Provider = z.enum(["aws", "azure", "gcp"]);
 
@@ -56,6 +57,7 @@ export type InfraCanvaAction = {
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
   deleteCanvas: (canvasId: string) => void;
+  saveCanvas: () => Promise<AxiosResponse<unknown, unknown>>;
   handleAmazonServiceCreate: (
     service: CreateNodeType,
     nodeData: unknown,

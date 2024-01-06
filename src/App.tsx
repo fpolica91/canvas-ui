@@ -16,7 +16,6 @@ import { SaasProvider, theme as baseTheme } from "@saas-ui/react";
 import { ReactFlowProvider } from "reactflow";
 import useStore from "./context/canvas";
 import { CustomTab } from "./components/Tabs/Tab";
-// import { Editor } from "ace-builds";
 
 function App() {
   const setInitialTerraformState = useStore.use.setInitialTerraformState();

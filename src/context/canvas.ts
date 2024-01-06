@@ -16,6 +16,11 @@ const useStoreBase = create<InfraCanvaState>()(
     {
       name: "canvas-store",
       storage: createJSONStorage(() => sessionStorage),
+      partialize: (state) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { services, ...rest } = state;
+        return rest;
+      },
     }
   )
 );

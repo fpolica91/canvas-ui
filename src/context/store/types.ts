@@ -39,7 +39,6 @@ export type InfraCanvaState = {
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
-  position: { x: number; y: number };
   createNode(services: CreateNodeType): void;
   deleteNode(nodeId: string): void;
   provider: string;

@@ -16,6 +16,4 @@ export const initialState = {
     provider_version: "5.31.0",
     region: "us-east-1",
   },
-
-  position: { x: 0, y: 0 },
 };

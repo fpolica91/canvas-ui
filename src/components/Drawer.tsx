@@ -17,10 +17,15 @@ import {
 
 import { FiChevronsRight, FiChevronsLeft } from "react-icons/fi";
 import useStore from "../context/canvas";
-import { CreateNodeType } from "../context/store/types";
+import { CreateNodeType, SingleCanvas } from "../context/store/types";
+import ProviderSelect from "./Select/ProviderSelect";
 
 export function SideBarDrawer() {
-  const services = useStore.use.services();
+  const currentCanvasId = useStore.use.currentCanvas();
+  const currentStore = useStore.use
+    .canvases()!
+    .find((c: SingleCanvas) => c.id === currentCanvasId);
+  const services = currentStore!.services;
   const createNode = useStore.use.createNode();
 
   const { isOpen, onToggle } = useDisclosure();
@@ -84,6 +89,9 @@ export function SideBarDrawer() {
               icon={isOpen ? <FiChevronsLeft /> : <FiChevronsRight />}
               aria-label="Toggle Sidebar"
             />
+          </SidebarSection>
+          <SidebarSection hidden={!isOpen}>
+            <ProviderSelect />
           </SidebarSection>
           <ServiceSection title="Compute" items={services.compute} />
           <ServiceSection title="Storage" items={services.storage} />

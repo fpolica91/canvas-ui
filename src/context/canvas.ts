@@ -2,25 +2,19 @@ import { create } from "zustand";
 
 import { initialState } from "./store/state";
 import { actions } from "./store/actions";
-
 import { createSelectors } from "./store/createSelectors";
-import { InfraCanvaState } from "./store/types";
+import { InfraCanvaAction, InfraCanvaState } from "./store/types";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-const useStoreBase = create<InfraCanvaState>()(
+const useStoreBase = create<InfraCanvaState & InfraCanvaAction>()(
   persist(
     (set, get) => ({
-      ...initialState,
+      ...(initialState as unknown as InfraCanvaState),
       ...actions(get, set),
     }),
     {
       name: "canvas-store",
       storage: createJSONStorage(() => sessionStorage),
-      partialize: (state) => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { services, ...rest } = state;
-        return rest;
-      },
     }
   )
 );

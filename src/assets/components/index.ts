@@ -1,4 +1,5 @@
 export { default as ArchiveBackupIcon } from "./ArchiveBackupIcon";
+export { default as AwsLogo } from "./AwsLogo";
 export { default as Ec2Icon } from "./Ec2Icon";
 export { default as LambdaIcon } from "./LambdaIcon";
 export { default as S3Icon } from "./S3Icon";

@@ -13,31 +13,79 @@ import { getBuckets } from "../../client/aws/storage/s3bucket";
 import { getProvider } from "../../client/methods";
 import { initialAwsServices } from "../../constants/aws/storage";
 import { initialAzureServices } from "../../constants/azure/storage";
-import { CreateNodeType, ProviderType } from "../store/types";
+import {
+  CreateNodeType,
+  InfraCanvaAction,
+  InfraCanvaState,
+  ProviderType,
+} from "../store/types";
 import { StoreApi } from "zustand";
-import { InfraCanvaState } from "./types";
 import { createInitialNodeData } from "../../utils/initialNodedata";
 import { getLambda } from "../../client/aws/compute/lambda";
 import { getVpc } from "../../client/aws/network/vpc";
 import { getEC2 } from "../../client/aws/compute/ec2";
 import type { MouseEvent as ReactMouseEvent } from "react";
 import _ from "lodash";
-
+import { canvas } from "./state";
+export type InfraCanvaStore = InfraCanvaState & InfraCanvaAction;
 export const actions = (
-  get: StoreApi<InfraCanvaState>["getState"],
-  set: StoreApi<InfraCanvaState>["setState"]
+  get: StoreApi<InfraCanvaStore>["getState"],
+  set: StoreApi<InfraCanvaStore>["setState"]
 ) => ({
+  getCurrentCanvas: () => {
+    const currentCanvasId = get().currentCanvas;
+    const currentCanvas = get()!.canvases.find(
+      (canvas) => canvas.id === currentCanvasId
+    );
+    return currentCanvas;
+  },
+
+  setCurrentCanvas: (canvasId: string) => {
+    set({ currentCanvas: canvasId });
+  },
+  createCanvas: () => {
+    const newCanvas = {
+      ...canvas,
+      id: uuidv4(),
+    };
+
+    set((state) => ({
+      canvases: [...state.canvases, newCanvas] as InfraCanvaState["canvases"],
+      currentCanvas: newCanvas.id,
+    }));
+  },
+
   onNodesChange: (changes: NodeChange[]) => {
+    const currentCanvas = get().getCurrentCanvas();
+    if (!currentCanvas) return;
     set({
-      nodes: applyNodeChanges(changes, get().nodes),
+      canvases: get().canvases.map((canvas) =>
+        canvas.id === currentCanvas.id
+          ? {
+              ...canvas,
+              nodes: applyNodeChanges(changes, canvas.nodes),
+            }
+          : canvas
+      ),
     });
   },
+
   // function will delete current node and create a new one with the same id
   onNodeDataChange: (node: Node, nodeData: unknown) => {
-    const nodes = get().nodes.filter((n) => n.id !== node.id);
+    const currentCanvas = get().getCurrentCanvas();
+    if (!currentCanvas) return;
+
+    const nodes = currentCanvas.nodes.filter((n) => n.id !== node.id);
     const newNode = _.merge(node, { data: { nodeData } });
     set({
-      nodes: [...nodes, newNode],
+      canvases: get().canvases.map((canvas) =>
+        canvas.id === currentCanvas.id
+          ? {
+              ...canvas,
+              nodes: [...nodes, newNode],
+            }
+          : canvas
+      ),
     });
   },
 
@@ -46,8 +94,10 @@ export const actions = (
     node: Node,
     getIntersectingNodes: Instance.GetIntersectingNodes<never>
   ) => {
+    const currentCanvas = get().getCurrentCanvas();
+    if (!currentCanvas) return;
     const intersections = getIntersectingNodes(node).map((n) => n.id);
-    const intersecNode = get().nodes.find(
+    const intersecNode = currentCanvas.nodes.find(
       (node) => intersections[0] === node.id
     );
     if (intersecNode?.type === "vpc") {
@@ -56,18 +106,22 @@ export const actions = (
         parentNode: intersecNode.id,
         extent: "parent",
       } as Node;
-      const nodes = get().nodes.map((n) =>
+      const nodes = currentCanvas.nodes.map((n) =>
         n.id === updatedNode.id! ? updatedNode : n
       );
 
       set({
-        nodes,
+        canvases: get().canvases.map((canvas) =>
+          canvas.id === currentCanvas.id ? { ...canvas, nodes } : canvas
+        ),
       });
     }
   },
 
   onDeattachFromParent: (nodeId: string) => {
-    const nodes = get().nodes.map((node) => {
+    const currentCanvas = get().getCurrentCanvas();
+    if (!currentCanvas) return;
+    const nodes = currentCanvas.nodes.map((node) => {
       if (node.id === nodeId) {
         delete node.parentNode;
         delete node.extent;
@@ -79,83 +133,117 @@ export const actions = (
     }) as Node[];
 
     set({
-      nodes,
+      canvases: get().canvases.map((canvas) =>
+        canvas.id === currentCanvas.id ? { ...canvas, nodes } : canvas
+      ),
     });
   },
 
   setInitialTerraformState: async () => {
-    const data = await getProvider(get().providerConfig);
-
+    const currentCanvas = get().getCurrentCanvas();
+    if (!currentCanvas) return;
+    const data = await getProvider(currentCanvas.providerConfig);
     set({
-      terraform: {
-        ...get().terraform,
-        providerString: data.providerString,
-        variableString: data.variablesString,
-      },
+      canvases: get().canvases.map((canvas) =>
+        canvas.id === currentCanvas.id
+          ? _.merge(canvas, {
+              terraform: {
+                providerString: data.providerString,
+                variableString: data.variablesString,
+              },
+            })
+          : canvas
+      ),
     });
   },
 
   onProviderChange: async (provider: ProviderType) => {
-    set({ provider: provider });
+    const currentCanvas = get().getCurrentCanvas();
+    if (!currentCanvas) return;
     switch (provider) {
       case "aws": {
+        const providerConfig = {
+          provider: "aws",
+          provider_source: "hashicorp/aws",
+          provider_version: "5.31.0",
+          region: "us-east-1",
+        };
+        const data = await getProvider(providerConfig);
         set({
-          providerConfig: {
-            provider: "aws",
-            provider_source: "hashicorp/aws",
-            provider_version: "5.31.0",
-            region: "us-east-1",
-          },
+          canvases: get().canvases.map((canvas) =>
+            canvas.id === currentCanvas.id
+              ? {
+                  ...canvas,
+                  providerConfig,
+                  terraform: {
+                    ...canvas.terraform,
+                    providerString: data.providerString,
+                    variableString: data.variablesString,
+                  },
+                  services: initialAwsServices,
+                  provider: provider,
+                }
+              : canvas
+          ),
         });
-        const data = await getProvider(get().providerConfig);
-
-        set({
-          terraform: {
-            ...get().terraform,
-            providerString: data.providerString,
-            variableString: data.variablesString,
-          },
-          services: initialAwsServices,
-        });
-
         break;
       }
-
-      case "azure":
-        {
-          set({
-            providerConfig: {
-              provider: "azurerm",
-              provider_source: "hashicorp/azurerm",
-              provider_version: "3.85.0",
-            },
-          });
-          const data = await getProvider(get().providerConfig);
-          set({
-            terraform: {
-              ...get().terraform,
-              providerString: data.providerString,
-              variableString: data.variablesString,
-            },
-            services: initialAzureServices,
-          });
-        }
-
+      case "azure": {
+        const providerConfig = {
+          provider: "azurerm",
+          provider_source: "hashicorp/azurerm",
+          provider_version: "3.85.0",
+        };
+        const data = await getProvider(providerConfig);
+        set({
+          canvases: get().canvases.map((canvas) =>
+            canvas.id === currentCanvas.id
+              ? {
+                  ...canvas,
+                  providerConfig,
+                  terraform: {
+                    ...canvas.terraform,
+                    providerString: data.providerString,
+                    variableString: data.variablesString,
+                  },
+                  services: initialAzureServices,
+                  provider: provider,
+                }
+              : canvas
+          ),
+        });
         break;
-      default:
-        set({ services: initialAwsServices });
+      }
     }
   },
 
   onEdgesChange: (changes: EdgeChange[]) => {
+    const currentCanvas = get().getCurrentCanvas();
+    if (!currentCanvas) return;
     set({
-      edges: applyEdgeChanges(changes, get().edges),
+      canvases: get().canvases.map((canvas) =>
+        canvas.id === currentCanvas.id
+          ? {
+              ...canvas,
+              edges: applyEdgeChanges(changes, canvas.edges),
+            }
+          : canvas
+      ),
     });
   },
 
   onConnect: (connection: Connection) => {
+    const currentCanvas = get().getCurrentCanvas();
+    if (!currentCanvas) return;
     set({
-      edges: addEdge(connection, get().edges),
+      canvases: get().canvases.map((canvas) =>
+        canvas.id === currentCanvas.id
+          ? {
+              ...canvas,
+              edges: addEdge(connection, canvas.edges),
+            }
+          : canvas
+      ),
     });
   },
 
@@ -165,12 +253,22 @@ export const actions = (
     id: string,
     resetString = false
   ) => {
+    const currentCanvas = get().getCurrentCanvas();
+    if (!currentCanvas) return;
+
     if (resetString) {
       set({
-        terraform: {
-          ...get().terraform,
-          resourceString: "",
-        },
+        canvases: get().canvases.map((canvas) =>
+          canvas.id === currentCanvas.id
+            ? {
+                ...canvas,
+                terraform: {
+                  ...currentCanvas.terraform,
+                  resourceString: "",
+                },
+              }
+            : canvas
+        ),
       });
     }
 
@@ -182,13 +280,12 @@ export const actions = (
         const payload = {
           buckets: [data],
         };
-        console.log(payload, "noddata being sent");
         response = await getBuckets(payload);
         break;
       }
       case "lambda": {
         const payload = {
-          provider: get().provider,
+          provider: currentCanvas.provider,
           lambdas: [nodeData],
         };
         response = await getLambda(payload);
@@ -196,7 +293,7 @@ export const actions = (
       }
       case "ec2": {
         const payload = {
-          provider: get().provider,
+          provider: currentCanvas.provider,
           vms: [nodeData],
         };
         response = await getEC2(payload);
@@ -212,53 +309,24 @@ export const actions = (
     }
 
     if (!response) return;
-
     set({
-      terraform: {
-        ...get().terraform,
-        resourceString:
-          get().terraform.resourceString.trimStart() +
-          response.resourcesString.trimEnd(),
-      },
-    });
-  },
-
-  createDefaultNode: async (type: string) => {
-    const nodes = get()
-      .nodes.filter((node) => node.type === type)
-      .map((node) => node.data.nodeData);
-    let response = null;
-    switch (type) {
-      case "s3": {
-        const payload = {
-          buckets: nodes,
-        };
-        response = await getBuckets(payload);
-        break;
-      }
-      case "lambda": {
-        const payload = {
-          lambdas: nodes,
-        };
-
-        response = await getLambda(payload);
-        break;
-      }
-    }
-
-    if (!response) return;
-
-    set({
-      terraform: {
-        ...get().terraform,
-        resourceString: response.resourcesString,
-      },
+      canvases: get().canvases.map((canvas) => {
+        if (canvas.id === currentCanvas.id) {
+          return _.merge(canvas, {
+            terraform: {
+              resourceString: (canvas.terraform.resourceString.trimStart() +
+                response!.resourcesString.trimEnd()) as string,
+            },
+          });
+        }
+        return canvas;
+      }),
     });
   },
 
   createNode: async (service: CreateNodeType, resourceName?: string) => {
     const id = uuidv4();
-    const position = get().position;
+
     const nodeData = createInitialNodeData(service, resourceName);
     const data = {
       id,
@@ -266,17 +334,44 @@ export const actions = (
       serviceInfo: service,
       nodeData: nodeData,
     };
+
+    const currentCanvas = get().getCurrentCanvas();
+    if (!currentCanvas) return;
+    const position = {
+      x:
+        currentCanvas.nodes.length === 0
+          ? 0
+          : currentCanvas.nodes[currentCanvas.nodes.length - 1].position.x + 50,
+      y:
+        currentCanvas.nodes.length === 0
+          ? 0
+          : currentCanvas.nodes[currentCanvas.nodes.length - 1].position.y + 50,
+    };
+    const nodes = [
+      ...currentCanvas.nodes,
+      {
+        nodesFocusable: true,
+        id,
+        type: service.type,
+        data,
+        position,
+      },
+    ];
+
     set({
-      nodes: [...get().nodes, { id, type: service.type, data, position }],
+      canvases: get().canvases.map((canvas) =>
+        canvas.id === currentCanvas.id ? { ...canvas, nodes } : canvas
+      ),
     });
-    set({ position: { x: position.x + 50, y: position.y + 50 } });
 
     return await get().handleAmazonServiceCreate(service, nodeData, id);
   },
 
   deleteNode: async (nodeId: string) => {
-    const filteredNodes = get()
-      .nodes.filter((node) => node.id !== nodeId)
+    const currentCanvas = get().getCurrentCanvas();
+    if (!currentCanvas) return;
+    const filteredNodes = currentCanvas.nodes
+      .filter((node) => node.id !== nodeId)
       .map((node) => {
         if (node.parentNode === nodeId) {
           delete node.parentNode;
@@ -288,17 +383,23 @@ export const actions = (
       }) as Node[];
 
     set({
-      nodes: [...filteredNodes],
+      canvases: get().canvases.map((canvas) => {
+        const resourcesString =
+          filteredNodes.length === 0 ? "" : canvas.terraform.resourceString;
+        return canvas.id === currentCanvas.id
+          ? {
+              ...canvas,
+              nodes: filteredNodes,
+              terraform: {
+                ...canvas.terraform,
+                resourceString: resourcesString,
+              },
+            }
+          : canvas;
+      }),
     });
 
-    if (filteredNodes.length == 0) {
-      set({
-        terraform: {
-          ...get().terraform,
-          resourceString: "",
-        },
-      });
-    } else {
+    if (filteredNodes.length > 0) {
       const handleAmazonServiceCreate = get().handleAmazonServiceCreate;
       const recreateServices = filteredNodes.map((filteredNode, index) =>
         handleAmazonServiceCreate(

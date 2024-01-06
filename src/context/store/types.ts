@@ -33,22 +33,28 @@ export type ProviderConfigType = z.infer<typeof providerConfig>;
 export type CreateNodeType = z.infer<typeof createNodeSchema>;
 export type ProviderType = z.infer<typeof Provider>;
 
-export type InfraCanvaState = {
+export type SingleCanvas = {
+  id: string;
+  name: string;
   nodes: Node[];
   edges: Edge[];
+
+  provider: string;
+  services: ServicesType;
+  terraform: TerraformSchemaType;
+  providerConfig: ProviderConfigType;
+};
+
+export type InfraCanvaAction = {
+  createNode(services: CreateNodeType): void;
+  getCurrentCanvas: () => SingleCanvas | undefined;
+  deleteNode(nodeId: string): void;
+  setInitialTerraformState: () => Promise<void>;
+  onDeattachFromParent: (nodeId: string) => void;
+  setCurrentCanvas: (canvasId: string) => void;
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
-  createNode(services: CreateNodeType): void;
-  deleteNode(nodeId: string): void;
-  provider: string;
-  createDefaultNode: (type: string) => Promise<void>;
-  services: ServicesType;
-  onProviderChange: (provider: ProviderType) => void;
-  terraform: TerraformSchemaType;
-  providerConfig: ProviderConfigType;
-  setInitialTerraformState: () => Promise<void>;
-  onDeattachFromParent: (nodeId: string) => void;
   handleAmazonServiceCreate: (
     service: CreateNodeType,
     nodeData: unknown,
@@ -61,4 +67,11 @@ export type InfraCanvaState = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     getIntersectingNodes: Instance.GetIntersectingNodes<never>
   ) => void;
+  onProviderChange: (provider: ProviderType) => void;
+  createCanvas: () => void;
+};
+
+export type InfraCanvaState = {
+  canvases: SingleCanvas[];
+  currentCanvas: string;
 };

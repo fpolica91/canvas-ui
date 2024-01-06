@@ -28,7 +28,6 @@ export const actions = (
   set: StoreApi<InfraCanvaState>["setState"]
 ) => ({
   onNodesChange: (changes: NodeChange[]) => {
-    console.log(get().nodes);
     set({
       nodes: applyNodeChanges(changes, get().nodes),
     });
@@ -163,6 +162,7 @@ export const actions = (
   handleAmazonServiceCreate: async (
     service: CreateNodeType,
     nodeData: unknown,
+    id: string,
     resetString = false
   ) => {
     if (resetString) {
@@ -178,9 +178,11 @@ export const actions = (
 
     switch (service.type) {
       case "s3": {
+        const data = _.merge(nodeData, { id });
         const payload = {
-          buckets: [nodeData],
+          buckets: [data],
         };
+        console.log(payload, "noddata being sent");
         response = await getBuckets(payload);
         break;
       }
@@ -269,7 +271,7 @@ export const actions = (
     });
     set({ position: { x: position.x + 50, y: position.y + 50 } });
 
-    return await get().handleAmazonServiceCreate(service, nodeData);
+    return await get().handleAmazonServiceCreate(service, nodeData, id);
   },
 
   deleteNode: async (nodeId: string) => {
@@ -302,7 +304,8 @@ export const actions = (
         handleAmazonServiceCreate(
           filteredNode.data?.serviceInfo,
           filteredNode.data.nodeData,
-          index == 0
+          filteredNode.id,
+          index === 0
         )
       );
       await Promise.all(recreateServices);

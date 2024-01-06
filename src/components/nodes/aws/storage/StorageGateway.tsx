@@ -4,10 +4,12 @@ import { BaseNode } from "../../BaseNode";
 
 interface StorageGatewayNodeProps extends CanvasNodeProps {}
 
-export const StorageGatewayNode = ({ isConnectable, data }: StorageGatewayNodeProps) => {
-
+export const StorageGatewayNode = ({
+  isConnectable,
+  data,
+}: StorageGatewayNodeProps) => {
   return (
-    <BaseNode 
+    <BaseNode
       nodeIcon={<StorageGatewayIcon />}
       id={data.id}
       data={data}
@@ -19,5 +21,5 @@ export const StorageGatewayNode = ({ isConnectable, data }: StorageGatewayNodePr
       dragging={false}
       selected={false}
     />
-  )
+  );
 };

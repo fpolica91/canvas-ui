@@ -3,15 +3,16 @@ import Flow from "./components/Flow";
 import { Box, extendTheme } from "@chakra-ui/react";
 import { Editors } from "./components/Editors";
 import { useEffect } from "react";
-import useStore from "./context/canvas";
+import { v4 as uuid } from "uuid";
+
 import { SaasProvider, theme as baseTheme } from "@saas-ui/react";
 import { ReactFlowProvider } from "reactflow";
 
 function App() {
-  const setInitialTerraformState = useStore.use.setInitialTerraformState();
-
   useEffect(() => {
-    setInitialTerraformState();
+    if (!localStorage.getItem("canvasUserId")) {
+      localStorage.setItem("canvasUserId", uuid());
+    }
   }, []);
 
   const theme = extendTheme(

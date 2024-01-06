@@ -15,6 +15,7 @@ import { FiPlus } from "react-icons/fi";
 import { SaasProvider, theme as baseTheme } from "@saas-ui/react";
 import { ReactFlowProvider } from "reactflow";
 import useStore from "./context/canvas";
+import { CustomTab } from "./components/Tabs/Tab";
 // import { Editor } from "ace-builds";
 
 function App() {
@@ -46,16 +47,21 @@ function App() {
           <TabList>
             {canvases.map((canvas) => {
               return (
-                <Tab
-                  onClick={() => setCurrentCanvas(canvas.id)}
-                  bg="gray.700"
-                  fontSize="medium"
+                <CustomTab
                   key={canvas.id}
-                  fontWeight="semibold"
-                  color="gray.200"
-                >
-                  {canvas.name}
-                </Tab>
+                  canvas={canvas}
+                  setCurrentCanvas={setCurrentCanvas}
+                />
+                // <Tab
+                //   onClick={() => setCurrentCanvas(canvas.id)}
+                //   bg="gray.700"
+                //   fontSize="medium"
+                //   key={canvas.id}
+                //   fontWeight="semibold"
+                //   color="gray.200"
+                // >
+                //   {canvas.name}
+                // </Tab>
               );
             })}
             <Tab fontSize="medium" color="gray.200" onClick={createCanvas}>

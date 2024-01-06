@@ -55,6 +55,7 @@ export type InfraCanvaAction = {
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
+  deleteCanvas: (canvasId: string) => void;
   handleAmazonServiceCreate: (
     service: CreateNodeType,
     nodeData: unknown,

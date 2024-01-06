@@ -40,6 +40,20 @@ export const actions = (
     return currentCanvas;
   },
 
+  deleteCanvas: (canvasId: string) => {
+    const currentCanvas = get().getCurrentCanvas();
+    console.log(currentCanvas);
+    if (!currentCanvas) return;
+    const canvases = get().canvases.filter((canvas) => canvas.id !== canvasId);
+    if (canvases.length === 0) {
+      return;
+    }
+    set({
+      canvases,
+      currentCanvas: canvases[0].id,
+    });
+  },
+
   setCurrentCanvas: (canvasId: string) => {
     set({ currentCanvas: canvasId });
   },

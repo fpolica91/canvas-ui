@@ -1,8 +1,13 @@
 import { Image, HStack } from "@chakra-ui/react";
 import { Select, SelectButton, SelectList, SelectOption } from "@saas-ui/react";
 import { useMemo } from "react";
+import { ProviderType } from "../../context/store/types";
 
-export default function ProviderSelect() {
+export default function ProviderSelect({
+  onProviderChange,
+}: {
+  onProviderChange: (provider: ProviderType) => void;
+}) {
   const options = useMemo(() => {
     return [
       { provider: "aws", logo: "/aws_logo.svg" },
@@ -14,6 +19,8 @@ export default function ProviderSelect() {
       name="provider"
       placeholder="Select a cloud provider"
       defaultValue="aws"
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      onChange={(value: ProviderType) => onProviderChange(value)}
     >
       <SelectButton />
       <SelectList>

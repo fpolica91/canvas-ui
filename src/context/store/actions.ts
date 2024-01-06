@@ -179,6 +179,7 @@ export const actions = (
   },
 
   onProviderChange: async (provider: ProviderType) => {
+    console.log(provider, "the provider");
     const currentCanvas = get().getCurrentCanvas();
     if (!currentCanvas) return;
     switch (provider) {

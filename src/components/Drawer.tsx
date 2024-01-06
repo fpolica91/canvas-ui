@@ -27,6 +27,7 @@ export function SideBarDrawer() {
     .find((c: SingleCanvas) => c.id === currentCanvasId);
   const services = currentStore!.services;
   const createNode = useStore.use.createNode();
+  const onProviderChange = useStore.use.onProviderChange();
 
   const { isOpen, onToggle } = useDisclosure();
   const ServiceButton = ({ service }: { service: CreateNodeType }) => (
@@ -91,7 +92,7 @@ export function SideBarDrawer() {
             />
           </SidebarSection>
           <SidebarSection hidden={!isOpen}>
-            <ProviderSelect />
+            <ProviderSelect onProviderChange={onProviderChange} />
           </SidebarSection>
           <ServiceSection title="Compute" items={services.compute} />
           <ServiceSection title="Storage" items={services.storage} />

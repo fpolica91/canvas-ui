@@ -15,19 +15,18 @@ import { FiPlus } from "react-icons/fi";
 import { SaasProvider, theme as baseTheme } from "@saas-ui/react";
 import { ReactFlowProvider } from "reactflow";
 import useStore from "./context/canvas";
-import { CustomTab } from "./components/Tabs/Tab";
+import { SingleCanvas } from "./context/store/types";
 
 function App() {
-  const setInitialTerraformState = useStore.use.setInitialTerraformState();
   const canvases = useStore.use.canvases();
   const createCanvas = useStore.use.createCanvas();
   const setCurrentCanvas = useStore.use.setCurrentCanvas();
+
   useEffect(() => {
     if (!localStorage.getItem("canvasUserId")) {
       localStorage.setItem("canvasUserId", uuid());
     }
-    setInitialTerraformState();
-  }, [createCanvas]);
+  }, []);
 
   const theme = extendTheme(
     {
@@ -44,13 +43,18 @@ function App() {
       <SaasProvider theme={theme}>
         <Tabs variant="enclosed">
           <TabList>
-            {canvases.map((canvas) => {
+            {canvases.map((canvas: SingleCanvas) => {
               return (
-                <CustomTab
+                <Tab
+                  onClick={() => setCurrentCanvas(canvas.id)}
+                  bg="gray.700"
+                  fontSize="medium"
                   key={canvas.id}
-                  canvas={canvas}
-                  setCurrentCanvas={setCurrentCanvas}
-                />
+                  fontWeight="semibold"
+                  color="gray.200"
+                >
+                  {canvas.name}
+                </Tab>
               );
             })}
             <Tab fontSize="medium" color="gray.200" onClick={createCanvas}>

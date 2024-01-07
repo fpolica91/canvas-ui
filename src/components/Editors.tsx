@@ -16,6 +16,7 @@ export function Editors() {
     .canvases()!
     .find((canvas: SingleCanvas) => canvas.id === currentCanvasId);
   const terraform = currentStore!.terraform;
+
   const editors = ["provider", "main", "variables"] as const;
 
   return (

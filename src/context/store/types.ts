@@ -39,7 +39,6 @@ export type SingleCanvas = {
   name: string;
   nodes: Node[];
   edges: Edge[];
-
   provider: string;
   services: ServicesType;
   terraform: TerraformSchemaType;

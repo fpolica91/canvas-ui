@@ -5,8 +5,10 @@ import { ProviderType } from "../../context/store/types";
 
 export default function ProviderSelect({
   onProviderChange,
+  defaultSelectValue,
 }: {
   onProviderChange: (provider: ProviderType) => void;
+  defaultSelectValue: ProviderType | null;
 }) {
   const options = useMemo(() => {
     return [
@@ -18,7 +20,7 @@ export default function ProviderSelect({
     <Select
       name="provider"
       placeholder="Select a cloud provider"
-      defaultValue="aws"
+      defaultValue={defaultSelectValue}
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onChange={(value: ProviderType) => onProviderChange(value)}
     >

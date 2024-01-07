@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { create } from "zustand";
-
+import _ from "lodash";
 import { initialState } from "./store/state";
 import { actions } from "./store/actions";
 import { createSelectors } from "./store/createSelectors";
@@ -15,6 +16,9 @@ const useStoreBase = create<InfraCanvaState & InfraCanvaAction>()(
     {
       name: "canvas-store",
       storage: createJSONStorage(() => sessionStorage),
+      partialize: (state) => {
+        return _.pick(state, ["canvases", "currentCanvas"]);
+      },
     }
   )
 );

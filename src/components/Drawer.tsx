@@ -17,15 +17,22 @@ import {
 
 import { FiChevronsRight, FiChevronsLeft } from "react-icons/fi";
 import useStore from "../context/canvas";
-import { CreateNodeType, SingleCanvas } from "../context/store/types";
+import {
+  CreateNodeType,
+  ProviderType,
+  SingleCanvas,
+} from "../context/store/types";
 import ProviderSelect from "./Select/ProviderSelect";
 
 export function SideBarDrawer() {
   const currentCanvasId = useStore.use.currentCanvas();
+
   const currentStore = useStore.use
     .canvases()!
     .find((c: SingleCanvas) => c.id === currentCanvasId);
+
   const services = currentStore!.services;
+
   const createNode = useStore.use.createNode();
   const onProviderChange = useStore.use.onProviderChange();
 
@@ -92,7 +99,10 @@ export function SideBarDrawer() {
             />
           </SidebarSection>
           <SidebarSection hidden={!isOpen}>
-            <ProviderSelect onProviderChange={onProviderChange} />
+            <ProviderSelect
+              onProviderChange={onProviderChange}
+              defaultSelectValue={currentStore?.provider as ProviderType | null}
+            />
           </SidebarSection>
           <ServiceSection title="Compute" items={services.compute} />
           <ServiceSection title="Storage" items={services.storage} />

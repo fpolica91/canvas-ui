@@ -92,18 +92,34 @@ export const actions = (
   },
 
   // function will delete current node and create a new one with the same id
-  onNodeDataChange: (node: Node, nodeData: unknown) => {
+  onNodeDataChange: async (node: Node, nodeData: unknown) => {
     const currentCanvas = get().getCurrentCanvas();
     if (!currentCanvas) return;
 
     const nodes = currentCanvas.nodes.filter((n) => n.id !== node.id);
-    const newNode = _.merge(node, { data: { nodeData } });
+    const originalNode = currentCanvas.nodes.find((n) => n.id === node.id);
+
+    const newNode = _.merge(originalNode, { data: { nodeData } });
+    console.log(newNode, "the new node");
+
+    const updatedNodes = [...nodes, newNode];
+    const updatedNodeData = updatedNodes.map((node) => node.data.nodeData);
+
+    const payload = {
+      buckets: updatedNodeData,
+    };
+
+    const response = await getBuckets(payload);
     set({
       canvases: get().canvases.map((canvas) =>
         canvas.id === currentCanvas.id
           ? {
               ...canvas,
-              nodes: [...nodes, newNode],
+              nodes: updatedNodes,
+              terraform: {
+                ...currentCanvas.terraform,
+                resourceString: response.resourcesString,
+              },
             }
           : canvas
       ),
@@ -298,6 +314,7 @@ export const actions = (
     switch (service.type) {
       case "s3": {
         const data = _.merge(nodeData, { id });
+        console.log(data, "the data");
         const payload = {
           buckets: [data],
         };

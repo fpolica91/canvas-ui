@@ -1,14 +1,18 @@
 import { Box, IconButton, useColorModeValue } from "@chakra-ui/react";
-import { FiLock, FiCopy, FiCloud, FiTrash, FiUnlock } from "react-icons/fi";
+import { FiLock, FiCopy, FiTrash, FiUnlock } from "react-icons/fi";
+import { FormModal } from "../Dialog/FormDialog";
+import { Node } from "reactflow";
 
 interface BaseToolbarProps {
   onDeleteAction?: () => unknown;
+  data: Node;
   deattachNodeFromParent: () => void;
 }
 
 export function BaseToolbar({
   onDeleteAction,
   deattachNodeFromParent,
+  data,
 }: BaseToolbarProps) {
   const bg = useColorModeValue("gray.100", "gray.700"); // Adjust the color mode based on the theme
 
@@ -34,7 +38,9 @@ export function BaseToolbar({
       />
       <IconButton aria-label="Lock" icon={<FiLock />} />
       <IconButton aria-label="Copy" icon={<FiCopy />} />
-      <IconButton aria-label="Configuration" icon={<FiCloud />} />
+
+      <FormModal data={data} />
+
       <IconButton
         aria-label="delete"
         icon={<FiTrash />}

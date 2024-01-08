@@ -35,6 +35,7 @@ export const BaseNode = ({
     <>
       {resizeable && <NodeResizer minWidth={100} minHeight={50} />}
       <ToolBar
+        data={data}
         deattachNodeFromParent={handleDeattachNodeFromParent}
         toolbarVisible={toolBar}
         onDeleteAction={handleRemoveNode}

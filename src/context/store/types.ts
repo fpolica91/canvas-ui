@@ -57,6 +57,7 @@ export type InfraCanvaAction = {
   onConnect: OnConnect;
   deleteCanvas: (canvasId: string) => void;
   saveCanvas: () => Promise<AxiosResponse<unknown, unknown>>;
+  onNodeDataChange: (node: Node, nodeData: unknown) => Promise<void>;
   handleAmazonServiceCreate: (
     service: CreateNodeType,
     nodeData: unknown,

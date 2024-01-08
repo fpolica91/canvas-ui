@@ -9,15 +9,18 @@ import {
   getEditorString,
 } from "../types/terraform/schema";
 import { SingleCanvas } from "../context/store/types";
+import { useEffect } from "react";
 
 export function Editors() {
   const currentCanvasId = useStore.use.currentCanvas();
+
   const currentStore = useStore.use
     .canvases()!
     .find((canvas: SingleCanvas) => canvas.id === currentCanvasId);
   const terraform = currentStore!.terraform;
 
   const editors = ["provider", "main", "variables"] as const;
+  useEffect(() => {}, []);
 
   return (
     <Box>
@@ -67,7 +70,7 @@ function Editor({
         width="100%"
         tabSize={2}
         focus={true}
-        height="100vh"
+        height="95vh"
       />
     </TabPanel>
   );

@@ -1,5 +1,5 @@
 import ReactFlow, { Background, Controls, useReactFlow, Node } from "reactflow";
-import { type MouseEvent as ReactMouseEvent } from "react";
+import { useEffect, type MouseEvent as ReactMouseEvent } from "react";
 import "reactflow/dist/style.css";
 import useStore from "../context/canvas";
 import { EC2Node } from "./nodes/aws/compute/ec2";
@@ -23,14 +23,16 @@ const Flow = () => {
     .canvases()!
     .find((c: SingleCanvas) => c.id === currentCanvasId);
 
-  const nodes = currentStore?.nodes;
-  const edges = currentStore?.edges;
+  const nodes = currentStore!.nodes;
+
+  const edges = currentStore!.edges;
 
   const onNodesChange = useStore.use.onNodesChange();
   const onEdgesChange = useStore.use.onEdgesChange();
   const onConnect = useStore.use.onConnect();
 
   const onNodeDragStop = useStore.use.onDragStop();
+  useEffect(() => {}, [currentCanvasId]);
 
   const handleNodeDragStop = (event: ReactMouseEvent, node: Node) => {
     onNodeDragStop(event, node, getIntersectingNodes as never);
@@ -38,6 +40,7 @@ const Flow = () => {
 
   return (
     <ReactFlow
+      id={currentCanvasId}
       nodes={nodes}
       edges={edges}
       nodeTypes={nodeTypes}
@@ -50,8 +53,9 @@ const Flow = () => {
         background: "#2d3748",
       }}
     >
-      <Background />
-      <Controls />
+      <Background id={currentCanvasId} />
+
+      <Controls id={currentCanvasId} />
     </ReactFlow>
   );
 };

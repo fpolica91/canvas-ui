@@ -18,6 +18,7 @@ import useStore from "./context/canvas";
 import { SingleCanvas } from "./context/store/types";
 
 function App() {
+  const currentCanvas = useStore.use.currentCanvas();
   const canvases = useStore.use.canvases();
   const createCanvas = useStore.use.createCanvas();
   const setCurrentCanvas = useStore.use.setCurrentCanvas();
@@ -62,9 +63,10 @@ function App() {
             </Tab>
           </TabList>
           <TabPanels>
-            {canvases.map((canvas) => {
+            <Canvas key={currentCanvas} />
+            {/* {canvases.map((canvas) => {
               return <Canvas key={canvas.id} />;
-            })}
+            })} */}
           </TabPanels>
         </Tabs>
       </SaasProvider>
@@ -74,15 +76,17 @@ function App() {
 
 function Canvas() {
   return (
-    <Box className="App" height="100vh">
-      <Box position="relative" top="0" left="0" zIndex="overlay">
-        <SideBarDrawer />
+    <ReactFlowProvider>
+      <Box className="App" height="100vh">
+        <Box position="relative" top="0" left="0" zIndex="overlay">
+          <SideBarDrawer />
+        </Box>
+        <Flow />
+        <Box position="absolute" top={0} right={0} width="33%" height="100%">
+          <Editors />
+        </Box>
       </Box>
-      <Flow />
-      <Box position="absolute" top={0} right={0} width="33%" height="100%">
-        <Editors />
-      </Box>
-    </Box>
+    </ReactFlowProvider>
   );
 }
 

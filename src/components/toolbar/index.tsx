@@ -14,9 +14,11 @@ export function ToolBar({
   deattachNodeFromParent,
   data,
 }: IToolbar) {
+  console.log(data.id, toolbarVisible);
   return (
-    <NodeToolbar isVisible={toolbarVisible} position={Position.Top}>
+    <NodeToolbar isVisible={true} position={Position.Top} nodeId={data.id}>
       <BaseToolbar
+        key={data.id}
         data={data}
         onDeleteAction={onDeleteAction}
         deattachNodeFromParent={deattachNodeFromParent}

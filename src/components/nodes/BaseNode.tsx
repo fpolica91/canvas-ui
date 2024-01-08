@@ -35,6 +35,7 @@ export const BaseNode = ({
     <>
       {resizeable && <NodeResizer minWidth={100} minHeight={50} />}
       <ToolBar
+        key={data.id}
         data={data}
         deattachNodeFromParent={handleDeattachNodeFromParent}
         toolbarVisible={toolBar}
@@ -63,7 +64,6 @@ export const BaseNode = ({
           width={"150px"}
           position={"absolute"}
           my={10}
-          onClick={() => console.log("LOCOTE")}
           color={"white"}
           fontSize={11}
         >

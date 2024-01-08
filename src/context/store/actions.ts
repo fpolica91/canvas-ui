@@ -26,8 +26,10 @@ import { getVpc } from "../../client/aws/network/vpc";
 import { getEC2 } from "../../client/aws/compute/ec2";
 import type { MouseEvent as ReactMouseEvent } from "react";
 import _ from "lodash";
-import { canvas } from "./state";
+
 import { axiosInstance } from "../../client/axios";
+
+import { generateNewCanvas } from "../../utils/generateNewCanvas";
 export type InfraCanvaStore = InfraCanvaState & InfraCanvaAction;
 export const actions = (
   get: StoreApi<InfraCanvaStore>["getState"],
@@ -65,10 +67,8 @@ export const actions = (
     set({ currentCanvas: canvasId });
   },
   createCanvas: () => {
-    const newCanvas = {
-      ...canvas,
-      id: uuidv4(),
-    };
+    const newCanvas = generateNewCanvas();
+    console.log(newCanvas, "the new canvas");
 
     set((state) => ({
       canvases: [...state.canvases, newCanvas] as InfraCanvaState["canvases"],
@@ -388,7 +388,6 @@ export const actions = (
     const nodes = [
       ...currentCanvas.nodes,
       {
-        nodesFocusable: true,
         id,
         type: service.type,
         data,

@@ -1,11 +1,10 @@
-import { EC2Node } from "../../components/nodes/aws/compute/ec2";
-import { LambdaNode } from "../../components/nodes/aws/compute/lambda";
-import { VPCNode } from "../../components/nodes/aws/network/VpcNode";
-import { S3StorageNode } from "../../components/nodes/aws/storage/S3";
-import { StorageGatewayNode } from "../../components/nodes/aws/storage/StorageGateway";
 import { initialAwsServices } from "../../constants/aws/storage";
+import { v4 as uuidv4 } from "uuid";
+import { generateName } from "../../utils/nameGenerator";
 
-export const initialState = {
+export const canvas = {
+  name: generateName(),
+  id: uuidv4(),
   nodes: [],
   edges: [],
   provider: "aws",
@@ -15,20 +14,15 @@ export const initialState = {
     resourceString: "",
     variableString: "",
   },
-  terraformString: "",
   providerConfig: {
     provider: "aws",
     provider_source: "hashicorp/aws",
     provider_version: "5.31.0",
     region: "us-east-1",
   },
-  nodeTypes: {
-    s3: S3StorageNode,
-    storage_gateway: StorageGatewayNode,
-    lambda: LambdaNode,
-    ec2: EC2Node,
-    vpc: VPCNode,
-  },
+};
 
-  position: { x: 0, y: 0 },
+export const initialState = {
+  canvases: [canvas],
+  currentCanvas: canvas.id,
 };

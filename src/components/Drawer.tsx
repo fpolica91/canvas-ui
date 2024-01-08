@@ -17,11 +17,24 @@ import {
 
 import { FiChevronsRight, FiChevronsLeft } from "react-icons/fi";
 import useStore from "../context/canvas";
-import { CreateNodeType } from "../context/store/types";
+import {
+  CreateNodeType,
+  ProviderType,
+  SingleCanvas,
+} from "../context/store/types";
+import ProviderSelect from "./Select/ProviderSelect";
 
 export function SideBarDrawer() {
-  const services = useStore.use.services();
+  const currentCanvasId = useStore.use.currentCanvas();
+
+  const currentStore = useStore.use
+    .canvases()!
+    .find((c: SingleCanvas) => c.id === currentCanvasId);
+
+  const services = currentStore!.services;
+
   const createNode = useStore.use.createNode();
+  const onProviderChange = useStore.use.onProviderChange();
 
   const { isOpen, onToggle } = useDisclosure();
   const ServiceButton = ({ service }: { service: CreateNodeType }) => (
@@ -83,6 +96,12 @@ export function SideBarDrawer() {
               color={isOpen ? "gray.800" : "gray.200"}
               icon={isOpen ? <FiChevronsLeft /> : <FiChevronsRight />}
               aria-label="Toggle Sidebar"
+            />
+          </SidebarSection>
+          <SidebarSection hidden={!isOpen}>
+            <ProviderSelect
+              onProviderChange={onProviderChange}
+              defaultSelectValue={currentStore?.provider as ProviderType | null}
             />
           </SidebarSection>
           <ServiceSection title="Compute" items={services.compute} />

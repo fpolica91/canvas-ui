@@ -1,5 +1,4 @@
 import { useState } from "react";
-import useStore from "../../context/canvas";
 import { CanvasNodeProps } from "../../constants/types/canvasNode";
 import { ToolBar } from "../toolbar";
 import { Box, Flex, Text } from "@chakra-ui/react";
@@ -21,23 +20,14 @@ export const BaseNode = ({
   resizeable = false,
 }: BaseNodeProps) => {
   const [toolBar, setToolBar] = useState(false);
-  const deleteNode = useStore.use.deleteNode();
-  const deattachNodeFromParent = useStore.use.onDeattachFromParent();
-
-  const handleRemoveNode = () => {
-    deleteNode(data.id);
-  };
-  const handleDeattachNodeFromParent = () => {
-    deattachNodeFromParent(data.id);
-  };
 
   return (
     <>
       {resizeable && <NodeResizer minWidth={100} minHeight={50} />}
       <ToolBar
-        deattachNodeFromParent={handleDeattachNodeFromParent}
+        key={data.id}
+        data={data}
         toolbarVisible={toolBar}
-        onDeleteAction={handleRemoveNode}
         toolbarPosition="top"
       />
       <Flex
@@ -62,7 +52,6 @@ export const BaseNode = ({
           width={"150px"}
           position={"absolute"}
           my={10}
-          onClick={() => console.log("LOCOTE")}
           color={"white"}
           fontSize={11}
         >

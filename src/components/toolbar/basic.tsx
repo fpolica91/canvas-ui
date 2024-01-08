@@ -1,20 +1,17 @@
 import { Box, IconButton, useColorModeValue } from "@chakra-ui/react";
-import { FiLock, FiCopy, FiCloud, FiTrash, FiUnlock } from "react-icons/fi";
+import { FiLock, FiCopy, FiTrash, FiUnlock } from "react-icons/fi";
+import { FormModal } from "../Dialog/FormDialog";
+import { Node } from "reactflow";
+import useStore from "../../context/canvas";
 
 interface BaseToolbarProps {
-  onDeleteAction?: () => unknown;
-  deattachNodeFromParent: () => void;
+  data: Node;
 }
 
-export function BaseToolbar({
-  onDeleteAction,
-  deattachNodeFromParent,
-}: BaseToolbarProps) {
+export function BaseToolbar({ data }: BaseToolbarProps) {
   const bg = useColorModeValue("gray.100", "gray.700"); // Adjust the color mode based on the theme
-
-  const handleRemove = () => {
-    onDeleteAction && onDeleteAction();
-  };
+  const deattachNodeFromParent = useStore.use.onDeattachFromParent();
+  const deleteNode = useStore.use.deleteNode();
 
   return (
     <Box
@@ -30,16 +27,18 @@ export function BaseToolbar({
       <IconButton
         aria-label="Unlock"
         icon={<FiUnlock />}
-        onClick={deattachNodeFromParent}
+        onClick={() => deattachNodeFromParent(data.id)}
       />
       <IconButton aria-label="Lock" icon={<FiLock />} />
       <IconButton aria-label="Copy" icon={<FiCopy />} />
-      <IconButton aria-label="Configuration" icon={<FiCloud />} />
+
+      <FormModal data={data} />
+
       <IconButton
         aria-label="delete"
         icon={<FiTrash />}
         color={"red"}
-        onClick={() => handleRemove()}
+        onClick={() => deleteNode(data.id)}
       />
     </Box>
   );

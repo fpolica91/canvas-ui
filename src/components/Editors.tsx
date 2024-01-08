@@ -1,30 +1,43 @@
-import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
+import { Tabs, TabList, TabPanels, Tab, TabPanel, Box } from "@chakra-ui/react";
 import AceEditor from "react-ace";
 import "ace-builds/src-noconflict/mode-terraform";
 import "ace-builds/src-noconflict/theme-dracula";
 import useStore from "../context/canvas";
-import { InfraCanvaState } from "../context/store/types";
 
 import {
   TerraformSchemaType,
   getEditorString,
 } from "../types/terraform/schema";
-
-const selector = (state: InfraCanvaState) => ({
-  terraformConfig: state.terraformString,
-  terraform: state.terraform,
-});
+import { SingleCanvas } from "../context/store/types";
+import { useEffect } from "react";
 
 export function Editors() {
-  const { terraform } = useStore(selector);
+  const currentCanvasId = useStore.use.currentCanvas();
+
+  const currentStore = useStore.use
+    .canvases()!
+    .find((canvas: SingleCanvas) => canvas.id === currentCanvasId);
+  const terraform = currentStore!.terraform;
+
   const editors = ["provider", "main", "variables"] as const;
+  useEffect(() => {}, []);
 
   return (
-    <>
-      <Tabs isFitted variant="enclosed">
-        <TabList mb="1em">
+    <Box>
+      <Tabs isFitted>
+        <TabList border="none">
           {editors.map((name) => {
-            return <Tab key={name}>{name}</Tab>;
+            return (
+              <Tab
+                fontSize="medium"
+                border="none"
+                key={name}
+                fontWeight="semibold"
+                color="gray.200"
+              >
+                {name}
+              </Tab>
+            );
           })}
         </TabList>
         <TabPanels>
@@ -33,7 +46,7 @@ export function Editors() {
           })}
         </TabPanels>
       </Tabs>
-    </>
+    </Box>
   );
 }
 
@@ -57,7 +70,7 @@ function Editor({
         width="100%"
         tabSize={2}
         focus={true}
-        height="90vh"
+        height="95vh"
       />
     </TabPanel>
   );

@@ -27,55 +27,11 @@ import { getEC2 } from "../../client/aws/compute/ec2";
 import type { MouseEvent as ReactMouseEvent } from "react";
 import _ from "lodash";
 
-import { axiosInstance } from "../../client/axios";
-
-import { generateNewCanvas } from "../../utils/generateNewCanvas";
 export type InfraCanvaStore = InfraCanvaState & InfraCanvaAction;
 export const actions = (
   get: StoreApi<InfraCanvaStore>["getState"],
   set: StoreApi<InfraCanvaStore>["setState"]
 ) => ({
-  getCurrentCanvas: () => {
-    const currentCanvasId = get().currentCanvas;
-    const currentCanvas = get()!.canvases.find(
-      (canvas) => canvas.id === currentCanvasId
-    );
-    return currentCanvas;
-  },
-  saveCanvas: async () => {
-    const canvases = get().canvases;
-    return await axiosInstance.post("/persist", JSON.stringify(canvases));
-  },
-
-  deleteCanvas: async (canvasId: string) => {
-    const currentCanvas = get().getCurrentCanvas();
-    console.log(currentCanvas);
-    if (!currentCanvas) return;
-    const canvases = get().canvases.filter((canvas) => canvas.id !== canvasId);
-    if (canvases.length === 0) {
-      return;
-    }
-    set({
-      canvases,
-      currentCanvas: canvases[0].id,
-    });
-
-    return await axiosInstance.post("/persist", JSON.stringify(canvases));
-  },
-
-  setCurrentCanvas: (canvasId: string) => {
-    set({ currentCanvas: canvasId });
-  },
-  createCanvas: () => {
-    const newCanvas = generateNewCanvas();
-    console.log(newCanvas, "the new canvas");
-
-    set((state) => ({
-      canvases: [...state.canvases, newCanvas] as InfraCanvaState["canvases"],
-      currentCanvas: newCanvas.id,
-    }));
-  },
-
   onNodesChange: (changes: NodeChange[]) => {
     const currentCanvas = get().getCurrentCanvas();
     if (!currentCanvas) return;
@@ -99,17 +55,21 @@ export const actions = (
     const nodes = currentCanvas.nodes.filter((n) => n.id !== node.id);
     const originalNode = currentCanvas.nodes.find((n) => n.id === node.id);
 
-    const newNode = _.merge(originalNode, { data: { nodeData } });
-    console.log(newNode, "the new node");
+    let updatedNode = _.merge(originalNode, { data: { nodeData } });
 
-    const updatedNodes = [...nodes, newNode];
-    const updatedNodeData = updatedNodes.map((node) => node.data.nodeData);
+    // const updatedNodeData = updatedNodes.map((node) => node.data.nodeData);
 
     const payload = {
-      buckets: updatedNodeData,
+      buckets: [updatedNode.data.nodeData],
     };
-
     const response = await getBuckets(payload);
+
+    updatedNode = _.merge(updatedNode, {
+      data: { resourceString: response.resourcesString },
+    });
+
+    const updatedNodes = [...nodes, updatedNode];
+
     set({
       canvases: get().canvases.map((canvas) =>
         canvas.id === currentCanvas.id
@@ -118,7 +78,9 @@ export const actions = (
               nodes: updatedNodes,
               terraform: {
                 ...currentCanvas.terraform,
-                resourceString: response.resourcesString,
+                resourceString: updatedNodes
+                  .map((n) => "\n" + n.data.resourceString.trim() + "\n")
+                  .join("\n"),
               },
             }
           : canvas
@@ -314,7 +276,6 @@ export const actions = (
     switch (service.type) {
       case "s3": {
         const data = _.merge(nodeData, { id });
-        console.log(data, "the data");
         const payload = {
           buckets: [data],
         };
@@ -347,14 +308,34 @@ export const actions = (
     }
 
     if (!response) return;
+
+    const updatedNodes = [
+      ...currentCanvas.nodes.filter((node) => node.id !== id),
+      {
+        id,
+        type: service.type,
+        data: {
+          id,
+          label: service.type,
+          serviceInfo: service,
+          nodeData,
+          resourceString: response!.resourcesString,
+        },
+      },
+    ];
+
     set({
       canvases: get().canvases.map((canvas) => {
         if (canvas.id === currentCanvas.id) {
           return _.merge(canvas, {
             terraform: {
-              resourceString: (canvas.terraform.resourceString.trimStart() +
-                response!.resourcesString.trimEnd()) as string,
+              resourceString: updatedNodes
+                .map((n) => {
+                  return "\n" + n.data.resourceString.trim() + "\n";
+                })
+                .join("\n"),
             },
+            nodes: updatedNodes,
           });
         }
         return canvas;
@@ -421,8 +402,10 @@ export const actions = (
 
     set({
       canvases: get().canvases.map((canvas) => {
-        const resourcesString =
-          filteredNodes.length === 0 ? "" : canvas.terraform.resourceString;
+        const resourcesString = filteredNodes
+          .map((node) => "\n" + node.data.resourceString.trim() + "\n")
+          .join("\n");
+
         return canvas.id === currentCanvas.id
           ? {
               ...canvas,
@@ -435,18 +418,5 @@ export const actions = (
           : canvas;
       }),
     });
-
-    if (filteredNodes.length > 0) {
-      const handleAmazonServiceCreate = get().handleAmazonServiceCreate;
-      const recreateServices = filteredNodes.map((filteredNode, index) =>
-        handleAmazonServiceCreate(
-          filteredNode.data?.serviceInfo,
-          filteredNode.data.nodeData,
-          filteredNode.id,
-          index === 0
-        )
-      );
-      await Promise.all(recreateServices);
-    }
   },
 });

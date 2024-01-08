@@ -4,25 +4,16 @@ interface IToolbar {
   toolbarVisible: boolean;
   data: Node;
   toolbarPosition: string;
-  onDeleteAction?: () => unknown;
-  deattachNodeFromParent: () => void;
 }
 
-export function ToolBar({
-  toolbarVisible,
-  onDeleteAction,
-  deattachNodeFromParent,
-  data,
-}: IToolbar) {
-  console.log(data.id, toolbarVisible);
+export function ToolBar({ toolbarVisible, data }: IToolbar) {
   return (
-    <NodeToolbar isVisible={true} position={Position.Top} nodeId={data.id}>
-      <BaseToolbar
-        key={data.id}
-        data={data}
-        onDeleteAction={onDeleteAction}
-        deattachNodeFromParent={deattachNodeFromParent}
-      />
+    <NodeToolbar
+      isVisible={toolbarVisible}
+      position={Position.Top}
+      nodeId={data.id}
+    >
+      <BaseToolbar key={data.id} data={data} />
     </NodeToolbar>
   );
 }

@@ -64,9 +64,6 @@ function App() {
           </TabList>
           <TabPanels>
             <Canvas key={currentCanvas} />
-            {/* {canvases.map((canvas) => {
-              return <Canvas key={canvas.id} />;
-            })} */}
           </TabPanels>
         </Tabs>
       </SaasProvider>

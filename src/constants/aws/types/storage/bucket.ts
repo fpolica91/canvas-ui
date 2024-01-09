@@ -56,10 +56,10 @@ export const bucketSchema = z.object({
 export const bucketSchemaFormValidator = z.object({
   configuration: z.object({
     bucket: z.string(), // Ensuring it's non-nullable by removing .nullable()
-    // tags: z
-    //   .array(z.object({ key: z.string(), value: z.string() }))
-    //   .optional()
-    //   .default([]), // Assuming you want this non-optional too
+    tags: z
+      .array(z.object({ key: z.string(), value: z.string() }))
+      .optional()
+      .default([]), // Assuming you want this non-optional too
   }),
   public_access_block: z.object({
     acl: z.enum([
@@ -89,15 +89,15 @@ export const bucketSchemaFormValidator = z.object({
     // ),
   }), // Assuming you want all these non-nullable and non-optional
   // cors_configuration: z.object({
-  // cors_rules_list: z.array(
-  //   z.object({
-  //     allowed_headers: z.array(z.string()),
-  //     allowed_methods: z.array(z.string()),
-  //     allowed_origins: z.array(z.string()),
-  //     expose_headers: z.array(z.string()),
-  //     max_age_seconds: z.number(),
-  //   })
-  // ),
+  cors_rules_list: z.array(
+    z.object({
+      allowed_headers: z.array(z.string()),
+      allowed_methods: z.array(z.string()),
+      allowed_origins: z.array(z.string()),
+      expose_headers: z.array(z.string()),
+      max_age_seconds: z.number(),
+    })
+  ),
   // }), // Assuming you want all these non-nullable and non-optional
 });
 

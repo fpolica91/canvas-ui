@@ -5,7 +5,6 @@ export const ComputeEC2SchemaValidator = z.object({
     name: z.string().nullable(),
     ami: z.string(),
     instance_type: z.string(),
-    tags: z.array(z.object({ key: z.string(), value: z.string() })).optional(),
   }),
 });
 
@@ -14,6 +13,7 @@ export const ComputeLambdaSchemaValidator = z.object({
     name: z.string().nullable(),
     function_name: z.string().nullable(),
     runtime: z.string().nullable(),
-    tags: z.array(z.object({ key: z.string(), value: z.string() })).optional(),
+
+    // tags: z.array(z.object({ key: z.string(), value: z.string() })).optional(),
   }),
 });

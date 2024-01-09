@@ -2,11 +2,11 @@ import ReactFlow, { Background, Controls, useReactFlow, Node } from "reactflow";
 import { useEffect, type MouseEvent as ReactMouseEvent } from "react";
 import "reactflow/dist/style.css";
 import useStore from "../context/canvas";
-import { EC2Node } from "./nodes/aws/compute/ec2";
-import { LambdaNode } from "./nodes/aws/compute/lambda";
-import { VPCNode } from "./nodes/aws/network/VpcNode";
-import { S3StorageNode } from "./nodes/aws/storage/S3";
-import { StorageGatewayNode } from "./nodes/aws/storage/StorageGateway";
+import { EC2Node } from "./Nodes/aws/compute/ec2";
+import { LambdaNode } from "./Nodes/aws/compute/lambda";
+import { VPCNode } from "./Nodes/aws/network/VpcNode";
+import { S3StorageNode } from "./Nodes/aws/storage/S3";
+import { StorageGatewayNode } from "./Nodes/aws/storage/StorageGateway";
 import { SingleCanvas } from "../context/store/types";
 
 const nodeTypes = {

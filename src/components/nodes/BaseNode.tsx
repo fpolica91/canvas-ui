@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { CanvasNodeProps } from "../../constants/types/canvasNode";
-import { ToolBar } from "../toolbar";
+import { ToolBar } from "../Toolbar";
 import { Box, Flex, Text } from "@chakra-ui/react";
 import { Handle, NodeResizer, Position } from "reactflow";
 

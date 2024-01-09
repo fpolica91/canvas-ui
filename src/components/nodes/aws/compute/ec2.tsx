@@ -5,9 +5,8 @@ import { CanvasNodeProps } from "../../../../constants/types/canvasNode";
 interface EC2NodeProps extends CanvasNodeProps {}
 
 export const EC2Node = ({ isConnectable, data }: EC2NodeProps) => {
-
   return (
-    <BaseNode 
+    <BaseNode
       nodeIcon={<Ec2Icon />}
       id={data.id}
       data={data}
@@ -19,5 +18,5 @@ export const EC2Node = ({ isConnectable, data }: EC2NodeProps) => {
       dragging={false}
       selected={false}
     />
-  )
+  );
 };

@@ -5,9 +5,8 @@ import { CanvasNodeProps } from "../../../../constants/types/canvasNode";
 interface LambdaNodeProps extends CanvasNodeProps {}
 
 export const LambdaNode = ({ isConnectable, data }: LambdaNodeProps) => {
-
   return (
-    <BaseNode 
+    <BaseNode
       nodeIcon={<LambdaIcon />}
       id={data.id}
       data={data}
@@ -19,5 +18,5 @@ export const LambdaNode = ({ isConnectable, data }: LambdaNodeProps) => {
       dragging={false}
       selected={false}
     />
-  )
+  );
 };

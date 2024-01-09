@@ -1,11 +1,11 @@
 import { Box, IconButton, useColorModeValue } from "@chakra-ui/react";
 import { FiLock, FiCopy, FiTrash, FiUnlock } from "react-icons/fi";
 import { FormModal } from "../Dialog/FormDialog";
-import { Node } from "reactflow";
 import useStore from "../../context/canvas";
+import { z } from "zod";
 
 interface BaseToolbarProps {
-  data: Node;
+  data: z.infer<z.AnyZodObject>;
 }
 
 export function BaseToolbar({ data }: BaseToolbarProps) {

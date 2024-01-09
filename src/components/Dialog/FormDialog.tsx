@@ -1,14 +1,18 @@
 import { IconButton, useDisclosure } from "@chakra-ui/react";
 import { FormDialog } from "@saas-ui/forms/zod";
 import { FiSettings } from "react-icons/fi";
-import { bucketSchemaFormValidator } from "../../constants/aws/types/storage/bucket";
-import { BucketFormFields } from "./types/aws/s3";
 import useStore from "../../context/canvas";
-import { Node } from "reactflow";
+import { getNodeFormConfiguration } from "../../utils/getFormConfiguration";
+import { z } from "zod";
 
-export function FormModal({ data }: { data: Node }) {
+export function FormModal({ data }: { data: z.infer<z.ZodAny> }) {
   const onNodeDataChange = useStore.use.onNodeDataChange();
   const disclosure = useDisclosure();
+
+  const formData = getNodeFormConfiguration(
+    data.serviceInfo.provider,
+    data.serviceInfo.type
+  );
 
   return (
     <>
@@ -20,9 +24,9 @@ export function FormModal({ data }: { data: Node }) {
 
       <FormDialog
         title="Bucket Configuration"
-        schema={bucketSchemaFormValidator}
+        schema={formData.schema}
         {...disclosure}
-        fields={BucketFormFields as never}
+        fields={formData.fields}
         onSubmit={async (d) => {
           await onNodeDataChange(data, d);
           disclosure.onClose();

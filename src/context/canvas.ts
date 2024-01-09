@@ -7,6 +7,7 @@ import { createSelectors } from "./store/createSelectors";
 import { InfraCanvaAction, InfraCanvaState } from "./store/types";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { canvasSlice } from "./canvas/actions";
+import { nodeSlice } from "./nodes/";
 
 const useStoreBase = create<InfraCanvaState & InfraCanvaAction>()(
   persist(
@@ -14,6 +15,7 @@ const useStoreBase = create<InfraCanvaState & InfraCanvaAction>()(
       ...(initialState as unknown as InfraCanvaState),
       ...actions(get, set),
       ...canvasSlice(get, set),
+      ...nodeSlice(get, set),
     }),
     {
       name: "canvas-store",

@@ -3,7 +3,7 @@
 // import { FormDialog } from "@saas-ui/forms/zod";
 // import { FiSettings } from "react-icons/fi";
 
-// import useStore from "../../context/canvas";
+//
 // import { getNodeFormConfiguration } from "../../utils/getFormConfiguration";
 // import { z } from "zod";
 
@@ -54,12 +54,14 @@ import {
   ArrayFieldAddButton,
   ArrayFieldRemoveButton,
 } from "@saas-ui/react";
+import useStore from "../../context/canvas";
 import { Heading } from "@chakra-ui/react";
 import { FiSettings } from "react-icons/fi";
 import { getNodeFormConfiguration } from "../../utils/getFormConfiguration";
 import { z } from "zod";
 
 export function FormModal({ data }: { data: z.infer<z.ZodAny> }) {
+  const onNodeDataChange = useStore.use.onNodeDataChange();
   const formData = getNodeFormConfiguration(
     data.serviceInfo.provider,
     data.serviceInfo.type
@@ -79,9 +81,9 @@ export function FormModal({ data }: { data: z.infer<z.ZodAny> }) {
   const arrayFields = fields.filter((field) => field.type === "array");
 
   const disclosure = useDisclosure();
-  const onSubmit = async (data: any) => {
-    console.log(data, "data");
-    // todo function to update node data needs to be created
+  const onSubmit = async (nodeData: any) => {
+    await onNodeDataChange(data, nodeData);
+
     disclosure.onClose();
   };
 
@@ -102,6 +104,15 @@ export function FormModal({ data }: { data: z.infer<z.ZodAny> }) {
         {({ Field }) => (
           <>
             <FormLayout my={4}>
+              {textFields.map((field, i) => {
+                return (
+                  <Field
+                    name={field.name}
+                    label={field.label}
+                    key={String(i)}
+                  />
+                );
+              })}
               {selectFields.map((field, i) => {
                 return (
                   <Field
@@ -112,15 +123,7 @@ export function FormModal({ data }: { data: z.infer<z.ZodAny> }) {
                   />
                 );
               })}
-              {textFields.map((field, i) => {
-                return (
-                  <Field
-                    name={field.name}
-                    label={field.label}
-                    key={String(i)}
-                  />
-                );
-              })}
+
               {switchFields.map((field, i) => {
                 return (
                   <Field

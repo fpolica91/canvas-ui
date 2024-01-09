@@ -17,6 +17,6 @@ export async function getBuckets(nodeData: unknown) {
       },
     }
   );
-  console.log(response);
+  console.log(responseSchema.parse(response));
   return responseSchema.parse(response).data;
 }

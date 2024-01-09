@@ -1,14 +1,4 @@
 export const BucketFormFields = {
-  configuration: {
-    label: "Configuration",
-    type: "object",
-    columns: 1,
-  },
-  public_access_block: {
-    label: "Public Access Block",
-    type: "object",
-    columns: 2,
-  },
   "configuration.bucket": {
     type: "text",
     label: "Bucket Name",

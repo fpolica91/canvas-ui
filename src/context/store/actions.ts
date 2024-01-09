@@ -48,45 +48,45 @@ export const actions = (
   },
 
   // function will delete current node and create a new one with the same id
-  onNodeDataChange: async (node: Node, nodeData: unknown) => {
-    const currentCanvas = get().getCurrentCanvas();
-    if (!currentCanvas) return;
+  // onNodeDataChange: async (node: Node, nodeData: unknown) => {
+  //   const currentCanvas = get().getCurrentCanvas();
+  //   if (!currentCanvas) return;
 
-    const nodes = currentCanvas.nodes.filter((n) => n.id !== node.id);
-    const originalNode = currentCanvas.nodes.find((n) => n.id === node.id);
+  //   const nodes = currentCanvas.nodes.filter((n) => n.id !== node.id);
+  //   const originalNode = currentCanvas.nodes.find((n) => n.id === node.id);
 
-    let updatedNode = _.merge(originalNode, { data: { nodeData } });
+  //   let updatedNode = _.merge(originalNode, { data: { nodeData } });
 
-    // const updatedNodeData = updatedNodes.map((node) => node.data.nodeData);
+  //   // const updatedNodeData = updatedNodes.map((node) => node.data.nodeData);
 
-    const payload = {
-      buckets: [updatedNode.data.nodeData],
-    };
-    const response = await getBuckets(payload);
+  //   const payload = {
+  //     buckets: [updatedNode.data.nodeData],
+  //   };
+  //   const response = await getBuckets(payload);
 
-    updatedNode = _.merge(updatedNode, {
-      data: { resourceString: response.resourcesString },
-    });
+  //   updatedNode = _.merge(updatedNode, {
+  //     data: { resourceString: response.resourcesString },
+  //   });
 
-    const updatedNodes = [...nodes, updatedNode];
+  //   const updatedNodes = [...nodes, updatedNode];
 
-    set({
-      canvases: get().canvases.map((canvas) =>
-        canvas.id === currentCanvas.id
-          ? {
-              ...canvas,
-              nodes: updatedNodes,
-              terraform: {
-                ...currentCanvas.terraform,
-                resourceString: updatedNodes
-                  .map((n) => "\n" + n.data.resourceString.trim() + "\n")
-                  .join("\n"),
-              },
-            }
-          : canvas
-      ),
-    });
-  },
+  //   set({
+  //     canvases: get().canvases.map((canvas) =>
+  //       canvas.id === currentCanvas.id
+  //         ? {
+  //             ...canvas,
+  //             nodes: updatedNodes,
+  //             terraform: {
+  //               ...currentCanvas.terraform,
+  //               resourceString: updatedNodes
+  //                 .map((n) => "\n" + n.data.resourceString.trim() + "\n")
+  //                 .join("\n"),
+  //             },
+  //           }
+  //         : canvas
+  //     ),
+  //   });
+  // },
 
   onDragStop: (
     _: ReactMouseEvent,

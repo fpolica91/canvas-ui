@@ -65,7 +65,7 @@ export const nodeSlice = (
       updatedNode,
       provider
     );
-    console.log(response, "the response");
+
     updatedNode = _.merge(updatedNode, {
       data: { resourceString: response!.resourcesString },
     });

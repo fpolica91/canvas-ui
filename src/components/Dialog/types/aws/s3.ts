@@ -64,17 +64,22 @@ export const BucketFormFields = {
     label: "Error Document",
     type: "text",
   },
-  cors_rules_list: {
-    label: "CORS Rules List",
-    type: "object",
-    columns: 2,
-  },
-  "cors_rules_list.allowed_headers": {
-    title: "Allowed Headers",
-    label: "Allowed Headers",
-    columns: 1,
-    type: "array",
-    min: 0,
-    max: 5,
-  },
+  // cors_configuration: {
+  //   label: "CORS Rules List",
+  //   type: "object",
+  //   columns: 2,
+  // },
+  // "cors_configuration.cors_rules_list": {
+  //   type: "array",
+  //   hidden: true,
+  // },
+
+  // "cors_configuration.cors_rules_list.allowed_headers": {
+  //   title: "Allowed Headers",
+  //   label: "Allowed Headers",
+  //   columns: 1,
+  //   type: "array",
+  //   min: 0,
+  //   max: 5,
+  // },
 };

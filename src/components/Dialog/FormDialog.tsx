@@ -38,6 +38,7 @@ export function FormModal({ data }: { data: z.infer<z.ZodAny> }) {
 
   const disclosure = useDisclosure();
   const onSubmit = async (nodeData: any) => {
+    console.log(JSON.stringify(nodeData, null, 2));
     await onNodeDataChange(data, nodeData);
 
     disclosure.onClose();
@@ -91,6 +92,7 @@ export function FormModal({ data }: { data: z.infer<z.ZodAny> }) {
               })}
             </FormLayout>
             {arrayFields.map((arrayField, i) => {
+              if (arrayField.hidden) return null;
               return (
                 <>
                   <Heading size="md" mt="4" key={String(i)}>
@@ -101,8 +103,7 @@ export function FormModal({ data }: { data: z.infer<z.ZodAny> }) {
                     <ArrayFieldContainer
                       name={arrayField.name}
                       label={arrayField.label}
-                      defaultValue={{}}
-                      keyName={arrayField.name}
+                      key={arrayField.name}
                       min={2}
                       max={4}
                     >
@@ -125,17 +126,17 @@ export function FormModal({ data }: { data: z.infer<z.ZodAny> }) {
                                     ) ? (
                                       <>
                                         <Field
-                                          name={`${field.name}.${i}.key}`}
+                                          name={`${arrayField.name}.${i}.key`}
                                           placeholder="Key"
                                         />
                                         <Field
-                                          name={`${field.name}.${i}.value}`}
+                                          name={`${arrayField.name}.${i}.value`}
                                           placeholder="Value"
                                         />
                                       </>
                                     ) : (
                                       <Field
-                                        name={`${field.name}.${i}`}
+                                        name={`${arrayField.name}.`}
                                         placeholder="Value"
                                       />
                                     )}

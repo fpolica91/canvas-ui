@@ -64,22 +64,40 @@ export const BucketFormFields = {
     label: "Error Document",
     type: "text",
   },
-  // cors_configuration: {
-  //   label: "CORS Rules List",
-  //   type: "object",
-  //   columns: 2,
-  // },
-  // "cors_configuration.cors_rules_list": {
-  //   type: "array",
-  //   hidden: true,
-  // },
-
-  // "cors_configuration.cors_rules_list.allowed_headers": {
-  //   title: "Allowed Headers",
-  //   label: "Allowed Headers",
-  //   columns: 1,
-  //   type: "array",
-  //   min: 0,
-  //   max: 5,
-  // },
+  cors_configuration: {
+    label: "CORS Rules List",
+    type: "object",
+    columns: 2,
+  },
+  "cors_configuration.cors_rules_list": {
+    type: "array",
+    title: "CORS Rules List",
+    label: "CORS Rules List",
+    items: [
+      "cors_configuration.cors_rules_list.allowed_headers" as const,
+      {
+        title: "Allowed Headers",
+        label: "Allowed Headers",
+        name: "allowed_headers",
+        columns: 1,
+        type: "array",
+      },
+      "cors_configuration.cors_rules_list.allowed_methods" as const,
+      {
+        title: "Allowed Methods",
+        label: "Allowed Methods",
+        name: "allowed_methods",
+        columns: 1,
+        type: "array",
+      },
+      "cors_configuration.cors_rules_list.allowed_origins" as const,
+      {
+        title: "Allowed Origins",
+        label: "Allowed Origins",
+        name: "allowed_origins",
+        columns: 1,
+        type: "array",
+      },
+    ],
+  },
 };

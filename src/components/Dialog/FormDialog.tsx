@@ -92,7 +92,6 @@ export function FormModal({ data }: { data: z.infer<z.ZodAny> }) {
               })}
             </FormLayout>
             {arrayFields.map((arrayField, i) => {
-              if (arrayField.hidden) return null;
               return (
                 <>
                   <Heading size="md" mt="4" key={String(i)}>
@@ -120,10 +119,7 @@ export function FormModal({ data }: { data: z.infer<z.ZodAny> }) {
                                     columns={arrayField.columns}
                                     spacing={2}
                                   >
-                                    {Object.prototype.hasOwnProperty.call(
-                                      arrayField,
-                                      "properties"
-                                    ) ? (
+                                    {arrayField.properties !== undefined && (
                                       <>
                                         <Field
                                           name={`${arrayField.name}.${i}.key`}
@@ -134,12 +130,26 @@ export function FormModal({ data }: { data: z.infer<z.ZodAny> }) {
                                           placeholder="Value"
                                         />
                                       </>
-                                    ) : (
-                                      <Field
-                                        name={`${arrayField.name}.`}
-                                        placeholder="Value"
-                                      />
                                     )}
+                                    {arrayField.properties === undefined &&
+                                      arrayField.items === undefined && (
+                                        <Field
+                                          name={`${arrayField.name}.`}
+                                          placeholder="Value"
+                                        />
+                                      )}
+
+                                    {arrayField.items?.map((item: any) => {
+                                      if (item && item.type === "array") {
+                                        return (
+                                          <Field
+                                            key={item.name}
+                                            name={item.name}
+                                            placeholder={item.label}
+                                          />
+                                        );
+                                      }
+                                    })}
                                   </ArrayFieldRowFields>
                                   <ArrayFieldRemoveButton />
                                 </ArrayFieldRowContainer>
